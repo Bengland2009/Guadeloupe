@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Voyage Guadeloupe · Benoit &amp; Jessica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.25.6/babel.min.js"></script>
+<style>
+  :root {
+    --color-bg: #f1efe8;
+    --color-surface: #ffffff;
+    --color-text: #2c2c2a;
+    --color-accent: #378add;
+    --color-accent-2: #d85a30;
+    --color-divider: #d3d1c7;
+
+    --color-success: #639922;
+    --color-error: #e24b4a;
+    --color-warning: #ba7517;
+
+    --color-neutral-100: #fbfaf7;
+    --color-neutral-200: #f1efe8;
+    --color-neutral-300: #d3d1c7;
+    --color-neutral-400: #b3b1a6;
+    --color-neutral-500: #8f8d84;
+    --color-neutral-600: #6f6e66;
+    --color-neutral-700: #5f5e5a;
+    --color-neutral-800: #454440;
+    --color-neutral-900: #2c2c2a;
+
+    --color-accent-100: #e6f1fb;
+    --color-accent-200: #cfe4f7;
+    --color-accent-300: #a4cbf0;
+    --color-accent-400: #6babe7;
+    --color-accent-500: #378add;
+    --color-accent-600: #2570bf;
+    --color-accent-700: #185fa5;
+    --color-accent-800: #0c447c;
+    --color-accent-900: #082f57;
+
+    --color-accent-2-100: #faece7;
+    --color-accent-2-200: #f4d2c4;
+    --color-accent-2-300: #ecb097;
+    --color-accent-2-400: #e58260;
+    --color-accent-2-500: #d85a30;
+    --color-accent-2-600: #b8481f;
+    --color-accent-2-700: #993c1d;
+    --color-accent-2-800: #732c15;
+    --color-accent-2-900: #4f1e0e;
+
+    --font-heading: "Montserrat", "Segoe UI", Arial, sans-serif;
+    --font-heading-weight: 700;
+    --font-body: "Roboto", "Segoe UI", Arial, sans-serif;
+
+    --color-text-primary: var(--color-text);
+    --color-text-secondary: var(--color-neutral-700);
+
+    --space-1: 4.4px;
+    --space-2: 8.8px;
+    --space-3: 13.2px;
+    --space-4: 17.6px;
+    --space-6: 26.4px;
+    --space-8: 35.2px;
+
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 28px;
+
+    --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
+    --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
+    --shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
+  }
+
+  * , *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--color-neutral-300);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  a { color: var(--color-accent-700); text-decoration: none; text-underline-offset: 3px; }
+  a:hover { color: var(--color-accent-900); text-decoration: underline; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  button { font: inherit; }
+
+  h1,h2,h3,h4,h5,h6 { margin: 0 0 var(--space-2); font-family: var(--font-heading); color: var(--color-text-primary); }
+
+  #root { min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; }
+
+  .app-shell {
+    width: 100%;
+    max-width: 460px;
+    min-height: 100vh;
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+  }
+  @media (min-width: 461px) {
+    .app-shell { min-height: 92vh; margin: 24px 0; border-radius: var(--radius-lg); overflow: hidden; }
+  }
+
+  .app-scroll { flex: 1; overflow-y: auto; }
+
+  /* — cards — */
+  .card {
+    display: flex; flex-direction: column; gap: var(--space-2);
+    padding: var(--space-3); border-radius: calc(var(--radius-lg) * 1.15);
+    background: var(--color-surface);
+  }
+  .card-kicker { font-family: var(--font-heading); font-weight: 500; font-size: 14px; letter-spacing: 0.02em; color: var(--color-text-secondary); }
+  .card-title { font-family: var(--font-heading); font-weight: 600; font-size: 21px; line-height: 1.35; }
+  .card-body { margin: 0; font-family: var(--font-body); font-weight: 400; font-size: 16px; line-height: 1.5; color: var(--color-text-primary); }
+  .card-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; color: color-mix(in srgb, var(--color-text) 50%, transparent); }
+  .elev-sm { box-shadow: var(--shadow-sm); }
+  .elev-md { box-shadow: var(--shadow-md); }
+
+  /* — buttons — */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; text-decoration: none;
+    font-family: var(--font-heading); font-weight: 700;
+    font-size: 14px; line-height: 1.2; color: var(--color-text);
+    background: transparent; border: 1px solid transparent;
+    padding: var(--space-2) calc(var(--space-3) * 1.2);
+    border-radius: 999px;
+  }
+  .btn-primary { background: var(--color-accent); color: var(--color-bg); }
+  .btn-primary:hover { background: var(--color-accent-600); }
+  .btn-secondary { border-color: var(--color-divider); }
+  .btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+  .btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); }
+  .btn-block { width: 100%; margin-top: var(--space-2); }
+
+  /* — tags — */
+  .tag {
+    display: inline-flex; align-items: center; font-size: 11px;
+    letter-spacing: 0.02em; padding: 3px 10px; border-radius: 999px;
+    border: none; background: none; cursor: default; font-family: var(--font-body);
+  }
+  .tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
+  .tag-urgent { background: #FAECE7; color: #993C1D; }
+  .tag-accent-2 { background: var(--color-accent-2-100); color: var(--color-accent-2-800); }
+  .tag-outline { border: 1px solid var(--color-accent); color: var(--color-accent); background: none; }
+  .tag-clickable { cursor: pointer; background: var(--color-neutral-200); color: var(--color-text); border: none; }
+  .tag-clickable[data-active="true"] { background: var(--color-accent); color: var(--color-bg); }
+
+  .hr { height: 1px; border: 0; margin: var(--space-4) 0; background: var(--color-divider); }
+
+  /* — tab bar — */
+  .tabbar {
+    flex: none; display: flex; border-top: 1px solid var(--color-divider);
+    background: var(--color-bg); padding: 8px 4px 10px;
+  }
+  .tabbar-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: none; cursor: pointer; padding: 4px 0;
+  }
+  .tabbar-label { font-size: 10.5px; }
+
+  /* — quick access grid — */
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .quick-btn {
+    display: flex; flex-direction: column; gap: 8px; align-items: flex-start;
+    padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-divider);
+    background: var(--color-surface); cursor: pointer; text-align: left;
+  }
+  .quick-btn span { font-size: 13px; font-weight: 600; }
+
+  /* — countdown card — */
+  .countdown-card {
+    margin-top: 18px; border-radius: calc(var(--radius-lg) * 1.15);
+    background-color: var(--color-accent-800);
+    background-position: center; background-size: cover; background-repeat: no-repeat;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: 22px 16px; color: #FFFFFF;
+  }
+  .countdown-number { font-family: var(--font-heading); font-weight: 700; font-size: 44px; color: #fff; line-height: 1; }
+  .countdown-caption { font-size: 13px; color: #fff; margin-top: 4px; font-family: var(--font-heading); }
+
+  /* — accordion — */
+  .accordion-toggle {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--color-neutral-200);
+    flex: none; display: flex; align-items: center; justify-content: center; font-size: 14px;
+    border: none; cursor: pointer;
+  }
+
+  .list-item-row {
+    display: flex; align-items: center; gap: 14px; padding: 12px 10px; cursor: pointer;
+    background: none; border: none; width: 100%; text-align: left;
+  }
+  .list-item-bullet { width: 40px; height: 40px; border-radius: 50%; background: var(--color-surface); flex: none; }
+
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useMemo } = React;
+
+/* ============================================================
+   DONNÉES (extraites telles quelles du prototype de référence)
+   ============================================================ */
+
+const DAYS = [
+  { id: 1, date: 'Sam 8 août', zone: 'Arrivée', title: 'Vol, voiture et installation à Saint-François', isPlaceholder: false,
+    detail: "Vol TS 894 direct Montréal → Pointe-à-Pitre. À la sortie : direction la pharmacie du terminal, puis à droite vers les agences de location. Voiture Sixt prise en charge à midi, puis route vers la Résidence Crystal Beach.",
+    horaire: '11h50 atterrissage · 12h prise en charge Sixt · route vers Saint-François',
+    planPluie: null, energyExtra: null,
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Aéroport Pointe-à-Pitre Le Raizet') },
+  { id: 2, date: 'Dim 9 août', zone: 'Grande-Terre · Saint-François', title: 'Journée libre — à planifier', isPlaceholder: true,
+    detail: "Aucune activité choisie pour l'instant. À privilégier : une plage des environs ou une excursion depuis l'embarcadère de Saint-François.",
+    horaire: null, planPluie: 'Plan pluie à définir', energyExtra: "\"Encore de l'énergie\" à définir", mapsUrl: null },
+  { id: 3, date: 'Lun 10 août', zone: 'Grande-Terre · Saint-François', title: 'Journée libre — à planifier', isPlaceholder: true,
+    detail: "Aucune activité choisie pour l'instant. À privilégier : une plage des environs ou une excursion depuis l'embarcadère de Saint-François.",
+    horaire: null, planPluie: 'Plan pluie à définir', energyExtra: "\"Encore de l'énergie\" à définir", mapsUrl: null },
+  { id: 4, date: 'Mar 11 août', zone: 'Grande-Terre · Saint-François', title: 'Journée libre — à planifier', isPlaceholder: true,
+    detail: "Aucune activité choisie pour l'instant. À privilégier : une plage des environs ou une excursion depuis l'embarcadère de Saint-François.",
+    horaire: null, planPluie: 'Plan pluie à définir', energyExtra: "\"Encore de l'énergie\" à définir", mapsUrl: null },
+  { id: 5, date: 'Mer 12 août', zone: 'Grande-Terre · Saint-François', title: 'Journée libre — à planifier', isPlaceholder: true,
+    detail: "Aucune activité choisie pour l'instant. À privilégier : une plage des environs ou une excursion depuis l'embarcadère de Saint-François.",
+    horaire: null, planPluie: 'Plan pluie à définir', energyExtra: "\"Encore de l'énergie\" à définir", mapsUrl: null },
+  { id: 6, date: 'Jeu 13 août', zone: 'Transition', title: 'Saint-François → Deshaies', isPlaceholder: false,
+    detail: "Départ de la Résidence Crystal Beach, chargement des bagages, arrêt possible en chemin et ravitaillement avant l'arrivée à Deshaies. Heure de remise des clés du Bungalow Corossol à confirmer.",
+    horaire: 'Départ en matinée · trajet Grande-Terre → Basse-Terre',
+    planPluie: null, energyExtra: null,
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Deshaies Guadeloupe') },
+  { id: 7, date: 'Ven 14 août', zone: 'Basse-Terre · Deshaies', title: 'Journée libre — à planifier', isPlaceholder: true,
+    detail: "Aucune activité choisie pour l'instant. À privilégier : les plages et la nature de Basse-Terre.",
+    horaire: null, planPluie: 'Plan pluie à définir', energyExtra: "\"Encore de l'énergie\" à définir", mapsUrl: null },
+  { id: 8, date: 'Sam 15 août', zone: 'Basse-Terre · Deshaies', title: 'Journée libre — à planifier', isPlaceholder: true,
+    detail: "Aucune activité choisie pour l'instant. À privilégier : les plages et la nature de Basse-Terre.",
+    horaire: null, planPluie: 'Plan pluie à définir', energyExtra: "\"Encore de l'énergie\" à définir", mapsUrl: null },
+  { id: 9, date: 'Dim 16 août', zone: 'Basse-Terre · Deshaies', title: 'Journée libre — à planifier', isPlaceholder: true,
+    detail: "Aucune activité choisie pour l'instant. À privilégier : les plages et la nature de Basse-Terre.",
+    horaire: null, planPluie: 'Plan pluie à définir', energyExtra: "\"Encore de l'énergie\" à définir", mapsUrl: null },
+  { id: 10, date: 'Lun 17 août', zone: 'Basse-Terre · Deshaies', title: 'Journée libre — à planifier', isPlaceholder: true,
+    detail: "Aucune activité choisie pour l'instant. À privilégier : les plages et la nature de Basse-Terre.",
+    horaire: null, planPluie: 'Plan pluie à définir', energyExtra: "\"Encore de l'énergie\" à définir", mapsUrl: null },
+  { id: 11, date: 'Mar 18 août', zone: 'Départ', title: 'Retour vers Montréal', isPlaceholder: false,
+    detail: "Départ du Bungalow Corossol, route vers l'aéroport, retour de la voiture Sixt à 10h — le vol décolle à 13h10.",
+    horaire: '10h retour voiture Sixt · 13h10 décollage TS 895 · 18h15 arrivée Montréal',
+    planPluie: null, energyExtra: null,
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Aéroport Pointe-à-Pitre Le Raizet') },
+];
+
+const RESERVATIONS = [
+  { id: 'vol', kicker: 'Vols · Air Transat', title: 'Aller-retour Montréal ↔ Pointe-à-Pitre', confirmation: '7NW07O', dates: '8 → 18 août 2026',
+    contact: 'Benoit Berthiaume · berthiaumebenoit@gmail.com · 514 817-0288',
+    instructions: ['Tarif Eco Budget, classe économique.', 'Vol direct dans les deux sens, Airbus A321-200, Air Transat.'],
+    legs: [
+      { label: 'Aller', date: 'Sam 8 août', vol: 'TS 894', route: 'Montréal (YUL) → Pointe-à-Pitre (PTP)', dep: '7h05', arr: '11h50' },
+      { label: 'Retour', date: 'Mar 18 août', vol: 'TS 895', route: 'Pointe-à-Pitre (PTP) → Montréal (YUL)', dep: '13h10', arr: '18h15' },
+    ],
+    address: null, mapsUrl: null, missing: [] },
+  { id: 'voiture', kicker: 'Voiture · Sixt', title: 'Location — centre aéroport PTP', confirmation: '9732974517', dates: '8 → 18 août 2026',
+    address: 'Aéroport de Pointe-à-Pitre, Les Abymes 97139',
+    contact: '00 590 590 919 154 · ouvert 7h30–21h30',
+    instructions: [
+      "Prise en charge samedi 8 août à 12h : sortir près de la pharmacie du terminal, tourner à droite, suivre « Agences de location de voitures ».",
+      "Restitution mardi 18 août à 10h (vol à 13h10, marge de 3h10) : suivre les panneaux vers les agences, stationner dans la zone de retour Sixt.",
+    ],
+    legs: null,
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Aéroport Pointe-à-Pitre Le Raizet'),
+    missing: ['Catégorie ou modèle du véhicule', 'Prix payé', 'Assurances incluses', 'Politique de carburant', 'Conducteur additionnel'] },
+  { id: 'heb1', kicker: 'Hébergement · 8–13 août', title: 'Résidence Crystal Beach', confirmation: 'HMRHRBX8R5', dates: '8 → 13 août 2026 · 5 nuits',
+    address: 'Raisins Clairs, Saint-François, Grande-Terre',
+    contact: 'Hôte Mongi · cohôte Adriana',
+    instructions: ["Arrivée autonome avec boîte à clés, badge ou digicode.", "Codes et instructions attendus quelques jours avant l'arrivée.", 'Stationnement privé gratuit.'],
+    legs: null,
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Raisins Clairs Saint-François Guadeloupe'),
+    missing: ['Adresse exacte', "Heures d'arrivée et de départ", "Codes d'accès", 'Contenu des « articles essentiels »'] },
+  { id: 'heb2', kicker: 'Hébergement · 13–18 août', title: 'Bungalow Corossol', confirmation: 'HMNAPXJ3NC', dates: '13 → 18 août 2026 · 5 nuits',
+    address: 'Deshaies, Basse-Terre',
+    contact: 'Hôte Justine · cohôte Yveline',
+    instructions: ['Remise des clés en personne.', 'Stationnement privé gratuit.'],
+    legs: null,
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Deshaies Guadeloupe'),
+    missing: ['Adresse exacte', "Heures d'arrivée et de départ", 'Modalités de remise des clés', 'Fonctionnement et coût de la laverie', "Présence possible d'odeurs de cigarette"] },
+];
+
+const INFO_SECTIONS = [
+  { id: 'heb1', title: 'Résidence Crystal Beach', subtitle: 'Saint-François · 8–13 août', groups: [
+    { label: 'Arrivée & accès', items: ["Arrivée autonome, boîte à clés, badge ou digicode.", "Codes envoyés quelques jours avant l'arrivée."] },
+    { label: 'Stationnement', items: ['Privé et gratuit.'] },
+    { label: 'Équipements clés', items: ['2 chambres climatisées', 'Cuisine complète (four, micro-ondes, lave-vaisselle, Nespresso, plancha)', 'Laveuse, sans sécheuse', '2 piscines, jardin tropical', 'Wi-Fi fibre Orange', 'Lit bébé / parc disponible', 'Jeux de société'] },
+    { label: 'À savoir', items: ["Citerne tampon de 300L en cas de coupure d'eau", 'Pas de détecteur de monoxyde de carbone', 'Logement strictement non-fumeur'] },
+    { label: 'À confirmer', items: ['Adresse exacte', "Heures officielles d'arrivée et de départ", "Codes d'accès", 'Contenu des « articles essentiels »', 'Disponibilité papier hygiénique / savon / produits ménagers'] },
+  ]},
+  { id: 'heb2', title: 'Bungalow Corossol', subtitle: 'Deshaies · 13–18 août', groups: [
+    { label: 'Arrivée & accès', items: ['Remise des clés en personne — heure à confirmer.'] },
+    { label: 'Stationnement', items: ['Privé et gratuit.'] },
+    { label: 'Équipements clés', items: ["Cuisine équipée pour 4, kit d'accueil (café, thé, sel, huile, épices)", 'Terrasse et salon extérieur, vue sur la mer', 'Piscine partagée', 'Wi-Fi fibre', 'Ventilateurs dans la chambre secondaire (pas de climatisation)', 'Pas de télévision'] },
+    { label: 'À savoir', items: ["Pas de laveuse ni sécheuse — service en supplément sur demande, délai non confirmé", 'Chambre des enfants sans climatisation : risque de chaleur la nuit', 'Pas de détecteur de monoxyde de carbone', "Logement autorisant les fumeurs — possibilité d'odeurs résiduelles"] },
+    { label: 'À confirmer', items: ['Adresse exacte', "Heures officielles d'arrivée et de départ", 'Modalités précises de remise des clés', 'Fonctionnement et coût de la laverie', 'Admissibilité au changement de linge à mi-séjour', "Équipement disponible pour limiter la chaleur"] },
+  ]},
+];
+
+const PLACES = [
+  { kicker: 'Hébergement · 8–13 août', title: 'Résidence Crystal Beach', address: 'Raisins Clairs, Saint-François, Grande-Terre', mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Raisins Clairs Saint-François Guadeloupe') },
+  { kicker: 'Hébergement · 13–18 août', title: 'Bungalow Corossol', address: 'Deshaies, Basse-Terre', mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Deshaies Guadeloupe') },
+  { kicker: 'Aéroport', title: 'Pointe-à-Pitre (PTP)', address: 'Aéroport du Raizet, Les Abymes', mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Aéroport Pointe-à-Pitre Le Raizet') },
+  { kicker: 'Voiture', title: 'Agence Sixt', address: 'Centre de location, aéroport PTP', mapsUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Sixt Aéroport Pointe-à-Pitre') },
+];
+
+const PINS = [
+  { id: 'heb1', label: 'Crystal Beach', x: 82, y: 46 },
+  { id: 'heb2', label: 'Bungalow Corossol', x: 18, y: 22 },
+  { id: 'aero', label: 'Aéroport PTP', x: 70, y: 78 },
+  { id: 'sixt', label: 'Agence Sixt', x: 76, y: 86 },
+];
+
+const CATEGORIES = [
+  { id: 'activites', label: 'Activités' },
+  { id: 'plages', label: 'Plages' },
+  { id: 'restaurants', label: 'Restaurants' },
+  { id: 'epiceries', label: 'Épiceries' },
+  { id: 'pharmacies', label: 'Pharmacies' },
+];
+
+const TRAVELERS = [
+  { name: 'Benoit Berthiaume', note: 'Adulte' },
+  { name: 'Jessica Barboza', note: 'Adulte' },
+  { name: 'Laurent Berthiaume', note: '7 ans' },
+  { name: 'Leonard Berthiaume', note: '4 ans' },
+];
+
+const NEXT_STEP = { title: 'Vol TS 894 — départ de Montréal', detail: 'Samedi 8 août, décollage 7h05. Voiture Sixt prise en charge à midi.', cta: 'Le vol', tab: 'res' };
+
+const COUNTDOWN_IMAGE_URL = 'https://www.ags-demenagement.com/outre-mer/wp-content/uploads/sites/2/2023/03/ile-dom-tom-guadeloupe-1080x675.jpg';
+
+function daysUntilDeparture() {
+  const now = new Date();
+  const trip = new Date(2026, 7, 8);
+  trip.setHours(0, 0, 0, 0);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const ms = trip - today;
+  return Math.max(0, Math.ceil(ms / 86400000));
+}
+
+/* ============================================================
+   ICÔNES (SVG traits, épaisseur 2.75, dessinées à la main
+   comme dans le prototype — pas de librairie externe)
+   ============================================================ */
+
+function IconBase({ children, color }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
+      {children}
+    </svg>
+  );
+}
+const IconItin = ({ color }) => (
+  <IconBase color={color}>
+    <rect x="3" y="4" width="18" height="17" rx="3"></rect>
+    <line x1="8" y1="2" x2="8" y2="6"></line>
+    <line x1="16" y1="2" x2="16" y2="6"></line>
+    <line x1="3" y1="10" x2="21" y2="10"></line>
+  </IconBase>
+);
+const IconRes = ({ color }) => (
+  <IconBase color={color}>
+    <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+    <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+  </IconBase>
+);
+const IconMap = ({ color }) => (
+  <IconBase color={color}>
+    <path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"></path>
+    <circle cx="12" cy="9.5" r="2.4"></circle>
+  </IconBase>
+);
+const IconInfo = ({ color }) => (
+  <IconBase color={color}>
+    <circle cx="12" cy="12" r="9"></circle>
+    <line x1="12" y1="11" x2="12" y2="16.5"></line>
+    <circle cx="12" cy="7.8" r="0.6" fill={color}></circle>
+  </IconBase>
+);
+const IconHome = ({ color }) => (
+  <IconBase color={color}>
+    <path d="M4 11.5 12 4l8 7.5"></path>
+    <path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"></path>
+  </IconBase>
+);
+
+const TABS = [
+  { id: 'home', label: 'Accueil', Icon: IconHome },
+  { id: 'itin', label: 'Itinéraire', Icon: IconItin },
+  { id: 'res', label: 'Réservations', Icon: IconRes },
+  { id: 'map', label: 'Carte', Icon: IconMap },
+  { id: 'info', label: 'Infos', Icon: IconInfo },
+];
+
+/* ============================================================
+   COMPOSANTS RÉUTILISABLES
+   ============================================================ */
+
+function Card({ children, elevation = 'sm', style }) {
+  return <div className={`card elev-${elevation}`} style={style}>{children}</div>;
+}
+
+function TabBar({ activeTab, onChange }) {
+  return (
+    <nav className="tabbar" aria-label="Navigation principale">
+      {TABS.map(({ id, label, Icon }) => {
+        const active = activeTab === id;
+        const color = active ? 'var(--color-accent-700)' : 'var(--color-neutral-600)';
+        return (
+          <button
+            key={id}
+            className="tabbar-item"
+            onClick={() => onChange(id)}
+            aria-current={active ? 'page' : undefined}
+          >
+            <Icon color={color} />
+            <span className="tabbar-label" style={{ color }}>{label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+function CountdownCard({ daysLeft, imageUrl }) {
+  return (
+    <div
+      className="countdown-card"
+      style={{
+        backgroundImage:
+          `linear-gradient(color-mix(in srgb, var(--color-accent-900) 55%, transparent), color-mix(in srgb, var(--color-accent-900) 55%, transparent)), url("${imageUrl}")`,
+      }}
+    >
+      <div className="countdown-number">J-{daysLeft}</div>
+      <div className="countdown-caption">avant le grand départ</div>
+    </div>
+  );
+}
+
+function Accordion({ header, meta, expanded, onToggle, children }) {
+  return (
+    <Card>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', gap: 8 }} onClick={onToggle}>
+        <div style={{ minWidth: 0 }}>{header}</div>
+        <button className="accordion-toggle" aria-label={expanded ? 'Réduire' : 'Déplier'} onClick={(e) => { e.stopPropagation(); onToggle(); }}>
+          {expanded ? '–' : '+'}
+        </button>
+      </div>
+      {meta}
+      {expanded && <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>{children}</div>}
+    </Card>
+  );
+}
+
+function Tag({ variant = 'neutral', children, onClick, active }) {
+  const cls = {
+    urgent: 'tag tag-urgent',
+    accent2: 'tag tag-accent-2',
+    outline: 'tag tag-outline',
+    accent: 'tag tag-accent',
+    clickable: 'tag tag-clickable',
+  }[variant] || 'tag';
+  return (
+    <span
+      className={cls}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      data-active={active}
+      style={onClick ? { cursor: 'pointer', border: 'none' } : undefined}
+    >
+      {children}
+    </span>
+  );
+}
+
+function MapsButton({ url }) {
+  if (!url) return null;
+  return (
+    <a className="btn btn-secondary" href={url} target="_blank" rel="noopener noreferrer" style={{ alignSelf: 'flex-start' }}>
+      Google Maps
+    </a>
+  );
+}
+
+/* ============================================================
+   ÉCRANS
+   ============================================================ */
+
+function HomeScreen({ daysLeft, missingCount, missingPreview, onNavigate }) {
+  return (
+    <div style={{ padding: '22px 18px 28px' }}>
+      <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 22, lineHeight: 1.15 }}>
+        Bonjour Benoit &amp; Jessica
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--color-neutral-700)', marginTop: 4 }}>
+        Guadeloupe · 8 → 18 août 2026
+      </div>
+
+      <CountdownCard daysLeft={daysLeft} imageUrl={COUNTDOWN_IMAGE_URL} />
+
+      <Card elevation="sm" style={{ marginTop: 14 }}>
+        <div className="card-kicker">Prochaine étape</div>
+        <div className="card-title">{NEXT_STEP.title}</div>
+        <p className="card-body">{NEXT_STEP.detail}</p>
+        <button
+          className="btn btn-primary"
+          style={{ alignSelf: 'flex-start', whiteSpace: 'nowrap' }}
+          onClick={() => onNavigate(NEXT_STEP.tab)}
+        >
+          {NEXT_STEP.cta}
+        </button>
+      </Card>
+
+      <div className="quick-grid">
+        <button className="quick-btn" onClick={() => onNavigate('itin')}>
+          <IconItin color="var(--color-accent-700)" />
+          <span>Itinéraire</span>
+        </button>
+        <button className="quick-btn" onClick={() => onNavigate('res')}>
+          <IconRes color="var(--color-accent-700)" />
+          <span>Réservations</span>
+        </button>
+        <button className="quick-btn" onClick={() => onNavigate('map')}>
+          <IconMap color="var(--color-accent-700)" />
+          <span>Carte</span>
+        </button>
+        <button className="quick-btn" onClick={() => onNavigate('info')}>
+          <IconInfo color="var(--color-accent-700)" />
+          <span>Infos pratiques</span>
+        </button>
+      </div>
+
+      <Card elevation="sm" style={{ marginTop: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="card-kicker">Alertes &amp; infos manquantes</div>
+          <Tag variant="urgent">{missingCount}</Tag>
+        </div>
+        {missingPreview.slice(0, 3).map((m, i) => (
+          <div key={i} style={{ fontSize: 13, display: 'flex', gap: 6 }}>
+            <span style={{ color: 'var(--color-accent-700)' }}>·</span>{m}
+          </div>
+        ))}
+        <button className="btn btn-secondary btn-block" onClick={() => onNavigate('res')}>
+          Tout voir dans Réservations
+        </button>
+      </Card>
+    </div>
+  );
+}
+
+function ItineraryScreen() {
+  return (
+    <React.Fragment>
+      <div style={{ padding: '20px 18px 4px' }}>
+        <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-accent-700)' }}>
+          8 → 18 août 2026 · 11 jours
+        </div>
+        <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 24, marginTop: 2 }}>Itinéraire</div>
+      </div>
+      <div style={{ padding: '12px 18px 28px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {DAYS.map((day) => (
+          <Card key={day.id} elevation="sm">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+              <div className="card-kicker">{day.zone}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-neutral-700)', whiteSpace: 'nowrap' }}>{day.date}</div>
+            </div>
+            <div className="card-title">{day.title}</div>
+            <p className="card-body">{day.detail}</p>
+            {day.horaire && <div className="card-meta">Horaire suggéré · {day.horaire}</div>}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 2 }}>
+              <MapsButton url={day.mapsUrl} />
+              {day.planPluie && <Tag variant="accent2">{day.planPluie}</Tag>}
+              {day.energyExtra && <Tag variant="outline">{day.energyExtra}</Tag>}
+            </div>
+          </Card>
+        ))}
+      </div>
+    </React.Fragment>
+  );
+}
+
+function ReservationsScreen({ expanded, onToggle }) {
+  return (
+    <React.Fragment>
+      <div style={{ padding: '20px 18px 4px' }}>
+        <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-accent-700)' }}>
+          Vols · voiture · hébergements
+        </div>
+        <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 24, marginTop: 2 }}>Réservations</div>
+      </div>
+      <div style={{ padding: '12px 18px 28px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {RESERVATIONS.map((res) => {
+          const isExpanded = !!expanded['res:' + res.id];
+          return (
+            <Accordion
+              key={res.id}
+              expanded={isExpanded}
+              onToggle={() => onToggle('res:' + res.id)}
+              header={
+                <React.Fragment>
+                  <div className="card-kicker">{res.kicker}</div>
+                  <div className="card-title">{res.title}</div>
+                </React.Fragment>
+              }
+              meta={<div className="card-meta">Confirmation {res.confirmation} · {res.dates}</div>}
+            >
+              {res.address && (
+                <div style={{ fontSize: 13 }}><strong>Adresse </strong>{res.address}</div>
+              )}
+              <div style={{ fontSize: 13 }}><strong>Contact </strong>{res.contact}</div>
+              {res.instructions.map((ins, i) => (
+                <div key={i} style={{ fontSize: 13, display: 'flex', gap: 6 }}>
+                  <span style={{ color: 'var(--color-accent-700)' }}>·</span>{ins}
+                </div>
+              ))}
+              {res.legs && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {res.legs.map((leg, i) => (
+                    <div key={i} style={{ border: '1px solid var(--color-divider)', borderRadius: 'var(--radius-md)', padding: '10px 12px' }}>
+                      <div style={{ fontSize: 12, color: 'var(--color-accent-700)', fontWeight: 600 }}>
+                        {leg.label} · {leg.date} · {leg.vol}
+                      </div>
+                      <div style={{ fontSize: 13, marginTop: 2 }}>{leg.route}</div>
+                      <div style={{ fontSize: 12, color: 'var(--color-neutral-700)', marginTop: 2 }}>
+                        Départ {leg.dep} · Arrivée {leg.arr}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <MapsButton url={res.mapsUrl} />
+              {res.missing.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-neutral-700)', marginBottom: 6 }}>
+                    À confirmer
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {res.missing.map((m, i) => <Tag key={i} variant="outline">{m}</Tag>)}
+                  </div>
+                </div>
+              )}
+            </Accordion>
+          );
+        })}
+      </div>
+    </React.Fragment>
+  );
+}
+
+function MapScreen({ activeCategory, onToggleCategory }) {
+  const activeCat = CATEGORIES.find((c) => c.id === activeCategory);
+  return (
+    <React.Fragment>
+      <div style={{ padding: '20px 18px 4px' }}>
+        <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-accent-700)' }}>
+          Lieux du séjour
+        </div>
+        <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 24, marginTop: 2 }}>Carte</div>
+      </div>
+
+      <div style={{ padding: '12px 18px 0' }}>
+        <div
+          style={{
+            position: 'relative', height: 220, borderRadius: 'var(--radius-lg)',
+            background: 'linear-gradient(160deg, var(--color-accent-200), var(--color-accent-100) 55%, var(--color-neutral-200))',
+            overflow: 'hidden',
+          }}
+        >
+          {PINS.map((pin) => (
+            <div
+              key={pin.id}
+              style={{
+                position: 'absolute', left: pin.x + '%', top: pin.y + '%',
+                transform: 'translate(-50%, -100%)', display: 'flex',
+                flexDirection: 'column', alignItems: 'center', gap: 3,
+              }}
+            >
+              <div style={{ fontSize: 10, background: 'var(--color-bg)', padding: '2px 7px', borderRadius: 999, boxShadow: 'var(--shadow-sm)', whiteSpace: 'nowrap' }}>
+                {pin.label}
+              </div>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--color-accent-700)', border: '2px solid var(--color-bg)' }}></div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--color-neutral-700)', marginTop: 6 }}>
+          Carte schématique — à remplacer par une intégration Google Maps.
+        </div>
+      </div>
+
+      <div style={{ padding: '16px 18px 4px' }}>
+        <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-neutral-700)' }}>
+          Explorer par catégorie
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+          {CATEGORIES.map((cat) => (
+            <Tag
+              key={cat.id}
+              variant="clickable"
+              active={activeCategory === cat.id}
+              onClick={() => onToggleCategory(cat.id)}
+            >
+              {cat.label}
+            </Tag>
+          ))}
+        </div>
+        {activeCat && (
+          <div style={{ fontSize: 12, color: 'var(--color-neutral-700)', marginTop: 8, padding: '10px 12px', borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
+            Aucun lieu enregistré pour « {activeCat.label} » — les adresses s'ajouteront au fil du séjour.
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: '16px 18px 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {PLACES.map((place, i) => (
+          <Card key={i} elevation="sm">
+            <div className="card-kicker">{place.kicker}</div>
+            <div className="card-title">{place.title}</div>
+            <div className="card-body">{place.address}</div>
+            <MapsButton url={place.mapsUrl} />
+          </Card>
+        ))}
+      </div>
+    </React.Fragment>
+  );
+}
+
+function InfoScreen({ expanded, onToggle }) {
+  return (
+    <React.Fragment>
+      <div style={{ padding: '20px 18px 4px' }}>
+        <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-accent-700)' }}>
+          Contacts · logements · à savoir
+        </div>
+        <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 24, marginTop: 2 }}>Infos pratiques</div>
+      </div>
+
+      <div style={{ padding: '12px 18px 0' }}>
+        <Card elevation="sm">
+          <div className="card-kicker">Voyageurs &amp; contact</div>
+          {TRAVELERS.map((t, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '4px 0' }}>
+              <span>{t.name}</span>
+              <span style={{ color: 'var(--color-neutral-700)' }}>{t.note}</span>
+            </div>
+          ))}
+          <div className="hr" style={{ margin: '6px 0' }}></div>
+          <div style={{ fontSize: 13 }}>Benoit Berthiaume · 514 817-0288</div>
+          <div style={{ fontSize: 13 }}>berthiaumebenoit@gmail.com</div>
+        </Card>
+      </div>
+
+      <div style={{ padding: '14px 18px 28px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {INFO_SECTIONS.map((sec) => {
+          const isExpanded = !!expanded['info:' + sec.id];
+          return (
+            <Accordion
+              key={sec.id}
+              expanded={isExpanded}
+              onToggle={() => onToggle('info:' + sec.id)}
+              header={<div className="card-title">{sec.title}</div>}
+              meta={<div className="card-meta">{sec.subtitle}</div>}
+            >
+              {sec.groups.map((grp, i) => (
+                <div key={i}>
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-neutral-700)', marginBottom: 5 }}>
+                    {grp.label}
+                  </div>
+                  {grp.items.map((it, j) => (
+                    <div key={j} style={{ fontSize: 13, display: 'flex', gap: 6, marginBottom: 2 }}>
+                      <span style={{ color: 'var(--color-accent-700)' }}>·</span>{it}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </Accordion>
+          );
+        })}
+      </div>
+    </React.Fragment>
+  );
+}
+
+/* ============================================================
+   APP
+   ============================================================ */
+
+function App() {
+  const [tab, setTab] = useState('home');
+  const [expanded, setExpanded] = useState({});
+  const [activeCategory, setActiveCategory] = useState(null);
+
+  const daysLeft = useMemo(() => daysUntilDeparture(), []);
+
+  const totalMissing = useMemo(
+    () => RESERVATIONS.reduce((n, r) => n + r.missing.length, 0),
+    []
+  );
+  const missingPreview = useMemo(
+    () => RESERVATIONS.flatMap((r) => r.missing.map((m) => r.title + ' — ' + m)).slice(0, 3),
+    []
+  );
+
+  function toggle(key) {
+    setExpanded((s) => ({ ...s, [key]: !s[key] }));
+  }
+  function toggleCategory(id) {
+    setActiveCategory((c) => (c === id ? null : id));
+  }
+
+  return (
+    <div className="app-shell">
+      <div className="app-scroll">
+        {tab === 'home' && (
+          <HomeScreen
+            daysLeft={daysLeft}
+            missingCount={totalMissing}
+            missingPreview={missingPreview}
+            onNavigate={setTab}
+          />
+        )}
+        {tab === 'itin' && <ItineraryScreen />}
+        {tab === 'res' && <ReservationsScreen expanded={expanded} onToggle={toggle} />}
+        {tab === 'map' && (
+          <MapScreen activeCategory={activeCategory} onToggleCategory={toggleCategory} />
+        )}
+        {tab === 'info' && <InfoScreen expanded={expanded} onToggle={toggle} />}
+      </div>
+      <TabBar activeTab={tab} onChange={setTab} />
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
