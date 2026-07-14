@@ -1,19 +1,423 @@
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#f1efe8" />
-    <title>Guadeloupe · Voyage 2026</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f1efe8">
+<title>Guadeloupe · Voyage 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --color-bg:#f1efe8; --color-surface:#ffffff; --color-text:#2c2c2a; --color-text-secondary:#5f5e5a;
+    --color-accent:#378add; --color-accent-2:#d85a30; --color-divider:#d3d1c7;
+    --color-neutral-100:#fbfaf7; --color-neutral-200:#f1efe8; --color-neutral-600:#6f6e66; --color-neutral-700:#5f5e5a;
+    --color-accent-100:#e6f1fb; --color-accent-600:#2570bf; --color-accent-700:#185fa5; --color-accent-900:#082f57;
+    --color-accent-2-100:#faece7; --color-accent-2-700:#993c1d;
+    --font-heading:'Montserrat',system-ui,sans-serif; --font-body:'Roboto',system-ui,sans-serif;
+    --radius-md:16px; --radius-lg:28px;
+    --shadow-sm:0 1px 2px rgba(46,43,37,.14); --shadow-md:0 3px 10px rgba(46,43,37,.16);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-neutral-200);color:var(--color-text);font-family:var(--font-body);font-size:15px;line-height:1.55}
+  h1,h2,h3,h4,h5,h6{margin:0 0 8px;font-family:var(--font-heading);color:var(--color-text)}
+  a{color:var(--color-accent-700);text-decoration:none}
+  a:hover{color:var(--color-accent-900)}
+  button{font:inherit}
+  #app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;background:var(--color-bg)}
+  .screens{flex:1;overflow:auto;padding-bottom:8px}
+  .screen{display:none}
+  .screen.active{display:block}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--color-accent-700)}
+  .screen-title{font-family:var(--font-heading);font-weight:600;font-size:24px;margin-top:2px}
+  .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-neutral-700)}
+  .card{display:flex;flex-direction:column;gap:9px;padding:13px;border-radius:32px;background:var(--color-surface)}
+  .elev-sm{box-shadow:var(--shadow-sm)}
+  .elev-md{box-shadow:var(--shadow-md)}
+  .card-kicker{font-family:var(--font-heading);font-weight:500;font-size:14px;letter-spacing:.02em;color:var(--color-text-secondary)}
+  .card-title{font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.35}
+  .card-body{margin:0;font-size:16px;line-height:1.5}
+  .card-meta{font-size:11px;color:rgba(44,44,42,.5)}
+  .hr{height:1px;border:0;margin:18px 0;background:var(--color-divider)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-decoration:none;
+    font-family:var(--font-heading);font-weight:700;font-size:14px;color:var(--color-text);background:transparent;
+    border:1px solid transparent;padding:9px 16px;border-radius:999px}
+  .btn-primary{background:var(--color-accent);color:var(--color-bg)}
+  .btn-primary:hover{background:var(--color-accent-600)}
+  .btn-secondary{border-color:var(--color-divider)}
+  .btn-secondary:hover{background:rgba(44,44,42,.07)}
+  .btn-block{width:100%;margin-top:8px}
+  .tag{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.02em;padding:3px 10px;border-radius:12px}
+  .tag-urgent,.tag-accent-2{background:var(--color-accent-2-100);color:var(--color-accent-2-700)}
+  .tag-outline{border:1px solid var(--color-accent);color:var(--color-accent)}
+  .toggle-btn{width:32px;height:32px;border-radius:50%;background:var(--color-neutral-200);flex:none;display:flex;
+    align-items:center;justify-content:center;font-size:14px;font-family:var(--font-heading);border:none;cursor:pointer;color:var(--color-text)}
+  .acc-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px}
+  .acc-body{display:none;flex-direction:column;gap:10px;margin-top:4px}
+  .acc.open .acc-body{display:flex}
+  .row{display:flex;gap:6px;font-size:13px}
+  .row .dot{color:var(--color-accent-700)}
+  .icon{display:block;flex:none}
+  /* ===== HOME ===== */
+  #screen-home .greet{font-family:var(--font-heading);font-weight:600;font-size:22px;line-height:1.15}
+  #screen-home .sub{font-size:13px;color:var(--color-neutral-700);margin-top:4px}
+  .countdown{margin-top:18px;background-image:linear-gradient(160deg,var(--color-accent-700),var(--color-accent-900));
+    align-items:center;text-align:center;padding:22px 16px;color:#fff}
+  .countdown .num{font-family:var(--font-heading);font-weight:700;font-size:44px;line-height:1}
+  .countdown .lbl{font-size:13px;margin-top:4px;font-family:var(--font-heading)}
+  .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .quick-btn{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px;border-radius:var(--radius-md);
+    border:1px solid var(--color-divider);background:var(--color-surface);cursor:pointer;text-align:left}
+  .quick-btn span{font-size:13px;font-weight:600}
+  /* ===== RESERVATIONS groups ===== */
+  .res-group-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .res-group-icon{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+  .leg{border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:10px 12px}
+  .leg-hd{font-size:12px;color:var(--color-accent-700);font-weight:600}
+  .leg-route{font-size:13px;margin-top:2px}
+  .leg-time{font-size:12px;color:var(--color-neutral-700);margin-top:2px}
+  /* ===== MAP ===== */
+  .map-frame{position:relative;height:320px;border-radius:var(--radius-lg);overflow:hidden}
+  .map-frame iframe{border:0;width:100%;height:100%}
+  .cat-chip{cursor:pointer;border:none;font-size:12px;padding:7px 14px;background:var(--color-neutral-100);color:var(--color-text)}
+  .cat-chip.active{background:var(--color-accent);color:#fff}
+  .cat-msg{font-size:12px;color:var(--color-neutral-700);margin-top:8px;padding:10px 12px;border-radius:var(--radius-md);background:var(--color-surface);display:none}
+  /* ===== INFO ===== */
+  .traveler-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
+  .traveler-row .note{color:var(--color-neutral-700)}
+  /* ===== TAB BAR ===== */
+  .tabbar{flex:none;display:flex;border-top:1px solid var(--color-divider);background:var(--color-bg);padding:8px 4px 10px}
+  .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 0;color:var(--color-neutral-600)}
+  .tab-btn span{font-size:10.5px}
+  .tab-btn.active{color:var(--color-accent-700)}
+  ::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="screens">
+
+    <div id="screen-home" class="screen active"></div>
+    <div id="screen-itin" class="screen"></div>
+    <div id="screen-res" class="screen"></div>
+    <div id="screen-map" class="screen"></div>
+    <div id="screen-info" class="screen"></div>
+
+  </div>
+
+  <nav class="tabbar">
+    <button class="tab-btn" data-tab="home"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"></path><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"></path></svg><span>Accueil</span></button>
+    <button class="tab-btn" data-tab="itin"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"></rect><line x1="8" y1="2" x2="8" y2="6"></line><line x1="16" y1="2" x2="16" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Itinéraire</span></button>
+    <button class="tab-btn" data-tab="res"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg><span>Réservations</span></button>
+    <button class="tab-btn" data-tab="map"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.4"></circle></svg><span>Carte</span></button>
+    <button class="tab-btn" data-tab="info"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16.5"></line><circle cx="12" cy="7.8" r="0.6" fill="currentColor"></circle></svg><span>Infos</span></button>
+  </nav>
+</div>
+
+<script>
+// ---------- Data (identical to the design source, no personal info) ----------
+function mapsUrl(q){ return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); }
+
+const DAYS = [
+  { id:1, date:'Sam 8 août', zone:'Arrivée', title:'Vol, voiture et installation à Saint-François',
+    detail:"Vol TS 894 direct Montréal → Pointe-à-Pitre. À la sortie : direction la pharmacie du terminal, puis à droite vers les agences de location. Voiture Sixt prise en charge à midi, puis route vers la Résidence Crystal Beach.",
+    horaire:'11h50 atterrissage · 12h prise en charge Sixt · route vers Saint-François', planPluie:null, energyExtra:null, mapsUrl:mapsUrl('Aéroport Pointe-à-Pitre Le Raizet') },
+  { id:2, date:'Dim 9 août', zone:'Grande-Terre · Saint-François', title:'Journée libre — à planifier',
+    detail:"Aucune activité choisie pour l'instant. À privilégier : une plage des environs ou une excursion depuis l'embarcadère de Saint-François.",
+    horaire:null, planPluie:'Plan pluie à définir', energyExtra:"\"Encore de l'énergie\" à définir", mapsUrl:null },
+  { id:3, date:'Lun 10 août', zone:'Grande-Terre · Saint-François', title:'Journée libre — à planifier',
+    detail:"Aucune activité choisie pour l'instant. À privilégier : une plage des environs ou une excursion depuis l'embarcadère de Saint-François.",
+    horaire:null, planPluie:'Plan pluie à définir', energyExtra:"\"Encore de l'énergie\" à définir", mapsUrl:null },
+  { id:4, date:'Mar 11 août', zone:'Grande-Terre · Saint-François', title:'Journée libre — à planifier',
+    detail:"Aucune activité choisie pour l'instant. À privilégier : une plage des environs ou une excursion depuis l'embarcadère de Saint-François.",
+    horaire:null, planPluie:'Plan pluie à définir', energyExtra:"\"Encore de l'énergie\" à définir", mapsUrl:null },
+  { id:5, date:'Mer 12 août', zone:'Grande-Terre · Saint-François', title:'Journée libre — à planifier',
+    detail:"Aucune activité choisie pour l'instant. À privilégier : une plage des environs ou une excursion depuis l'embarcadère de Saint-François.",
+    horaire:null, planPluie:'Plan pluie à définir', energyExtra:"\"Encore de l'énergie\" à définir", mapsUrl:null },
+  { id:6, date:'Jeu 13 août', zone:'Transition', title:'Saint-François → Deshaies',
+    detail:"Départ de la Résidence Crystal Beach, chargement des bagages, arrêt possible en chemin et ravitaillement avant l'arrivée à Deshaies. Heure de remise des clés du Bungalow Corossol à confirmer.",
+    horaire:'Départ en matinée · trajet Grande-Terre → Basse-Terre', planPluie:null, energyExtra:null, mapsUrl:mapsUrl('Deshaies Guadeloupe') },
+  { id:7, date:'Ven 14 août', zone:'Basse-Terre · Deshaies', title:'Journée libre — à planifier',
+    detail:"Aucune activité choisie pour l'instant. À privilégier : les plages et la nature de Basse-Terre.",
+    horaire:null, planPluie:'Plan pluie à définir', energyExtra:"\"Encore de l'énergie\" à définir", mapsUrl:null },
+  { id:8, date:'Sam 15 août', zone:'Basse-Terre · Deshaies', title:'Journée libre — à planifier',
+    detail:"Aucune activité choisie pour l'instant. À privilégier : les plages et la nature de Basse-Terre.",
+    horaire:null, planPluie:'Plan pluie à définir', energyExtra:"\"Encore de l'énergie\" à définir", mapsUrl:null },
+  { id:9, date:'Dim 16 août', zone:'Basse-Terre · Deshaies', title:'Journée libre — à planifier',
+    detail:"Aucune activité choisie pour l'instant. À privilégier : les plages et la nature de Basse-Terre.",
+    horaire:null, planPluie:'Plan pluie à définir', energyExtra:"\"Encore de l'énergie\" à définir", mapsUrl:null },
+  { id:10, date:'Lun 17 août', zone:'Basse-Terre · Deshaies', title:'Journée libre — à planifier',
+    detail:"Aucune activité choisie pour l'instant. À privilégier : les plages et la nature de Basse-Terre.",
+    horaire:null, planPluie:'Plan pluie à définir', energyExtra:"\"Encore de l'énergie\" à définir", mapsUrl:null },
+  { id:11, date:'Mar 18 août', zone:'Départ', title:'Retour vers Montréal',
+    detail:"Départ du Bungalow Corossol, route vers l'aéroport, retour de la voiture Sixt à 10h — le vol décolle à 13h10.",
+    horaire:'10h retour voiture Sixt · 13h10 décollage TS 895 · 18h15 arrivée Montréal', planPluie:null, energyExtra:null, mapsUrl:mapsUrl('Aéroport Pointe-à-Pitre Le Raizet') },
+];
+
+const RESERVATIONS = [
+  { id:'vol', category:'vols', kicker:'Vols · Air Transat', title:'Aller-retour Montréal ↔ Pointe-à-Pitre', dates:'8 → 18 août 2026',
+    contact:'Voir courriel de confirmation Air Transat',
+    instructions:['Tarif Eco Budget, classe économique.', 'Vol direct dans les deux sens, Airbus A321-200, Air Transat.'],
+    legs:[
+      { label:'Aller', date:'Sam 8 août', vol:'TS 894', route:'Montréal (YUL) → Pointe-à-Pitre (PTP)', dep:'7h05', arr:'11h50' },
+      { label:'Retour', date:'Mar 18 août', vol:'TS 895', route:'Pointe-à-Pitre (PTP) → Montréal (YUL)', dep:'13h10', arr:'18h15' },
+    ], address:null, mapsUrl:null, missing:[] },
+  { id:'voiture', category:'voiture', kicker:'Voiture · Sixt', title:'Location — centre aéroport PTP', dates:'8 → 18 août 2026',
+    address:'Aéroport de Pointe-à-Pitre, Les Abymes 97139', contact:'Ouvert 7h30–21h30 · voir courriel de confirmation Sixt',
+    instructions:[
+      "Prise en charge samedi 8 août à 12h : sortir près de la pharmacie du terminal, tourner à droite, suivre « Agences de location de voitures ».",
+      "Restitution mardi 18 août à 10h (vol à 13h10, marge de 3h10) : suivre les panneaux vers les agences, stationner dans la zone de retour Sixt.",
+    ], legs:null, mapsUrl:mapsUrl('Aéroport Pointe-à-Pitre Le Raizet'),
+    missing:['Catégorie ou modèle du véhicule', 'Prix payé', 'Assurances incluses', 'Politique de carburant', 'Conducteur additionnel'] },
+  { id:'heb1', category:'hebergements', kicker:'Hébergement · 8–13 août', title:'Résidence Crystal Beach', dates:'8 → 13 août 2026 · 5 nuits',
+    address:'Raisins Clairs, Saint-François, Grande-Terre', contact:'Hôte Mongi · cohôte Adriana',
+    instructions:['Arrivée autonome avec boîte à clés, badge ou digicode.', "Codes et instructions attendus quelques jours avant l'arrivée.", 'Stationnement privé gratuit.'],
+    legs:null, mapsUrl:mapsUrl('Raisins Clairs Saint-François Guadeloupe'),
+    missing:['Adresse exacte', "Heures d'arrivée et de départ", "Codes d'accès", 'Contenu des « articles essentiels »'] },
+  { id:'heb2', category:'hebergements', kicker:'Hébergement · 13–18 août', title:'Bungalow Corossol', dates:'13 → 18 août 2026 · 5 nuits',
+    address:'Deshaies, Basse-Terre', contact:'Hôte Justine · cohôte Yveline',
+    instructions:['Remise des clés en personne.', 'Stationnement privé gratuit.'],
+    legs:null, mapsUrl:mapsUrl('Deshaies Guadeloupe'),
+    missing:['Adresse exacte', "Heures d'arrivée et de départ", 'Modalités de remise des clés', 'Fonctionnement et coût de la laverie', "Présence possible d'odeurs de cigarette"] },
+];
+
+const INFO_SECTIONS = [
+  { id:'heb1', title:'Résidence Crystal Beach', subtitle:'Saint-François · 8–13 août', groups:[
+    { label:'Arrivée & accès', items:["Arrivée autonome, boîte à clés, badge ou digicode.", "Codes envoyés quelques jours avant l'arrivée."] },
+    { label:'Stationnement', items:['Privé et gratuit.'] },
+    { label:'Équipements clés', items:['2 chambres climatisées', 'Cuisine complète (four, micro-ondes, lave-vaisselle, Nespresso, plancha)', 'Laveuse, sans sécheuse', '2 piscines, jardin tropical', 'Wi-Fi fibre Orange', 'Lit bébé / parc disponible', 'Jeux de société'] },
+    { label:'À savoir', items:["Citerne tampon de 300L en cas de coupure d'eau", 'Pas de détecteur de monoxyde de carbone', 'Logement strictement non-fumeur'] },
+    { label:'À confirmer', items:['Adresse exacte', "Heures officielles d'arrivée et de départ", "Codes d'accès", 'Contenu des « articles essentiels »', 'Disponibilité papier hygiénique / savon / produits ménagers'] },
+  ]},
+  { id:'heb2', title:'Bungalow Corossol', subtitle:'Deshaies · 13–18 août', groups:[
+    { label:'Arrivée & accès', items:['Remise des clés en personne — heure à confirmer.'] },
+    { label:'Stationnement', items:['Privé et gratuit.'] },
+    { label:'Équipements clés', items:["Cuisine équipée pour 4, kit d'accueil (café, thé, sel, huile, épices)", 'Terrasse et salon extérieur, vue sur la mer', 'Piscine partagée', 'Wi-Fi fibre', 'Ventilateurs dans la chambre secondaire (pas de climatisation)', 'Pas de télévision'] },
+    { label:'À savoir', items:["Pas de laveuse ni sécheuse — service en supplément sur demande, délai non confirmé", 'Chambre des enfants sans climatisation : risque de chaleur la nuit', 'Pas de détecteur de monoxyde de carbone', "Logement autorisant les fumeurs — possibilité d'odeurs résiduelles"] },
+    { label:'À confirmer', items:['Adresse exacte', "Heures officielles d'arrivée et de départ", 'Modalités précises de remise des clés', 'Fonctionnement et coût de la laverie', 'Admissibilité au changement de linge à mi-séjour', 'Équipement disponible pour limiter la chaleur'] },
+  ]},
+];
+
+const PLACES = [
+  { kicker:'Hébergement · 8–13 août', title:'Résidence Crystal Beach', address:'Raisins Clairs, Saint-François, Grande-Terre', mapsUrl:mapsUrl('Raisins Clairs Saint-François Guadeloupe') },
+  { kicker:'Hébergement · 13–18 août', title:'Bungalow Corossol', address:'Deshaies, Basse-Terre', mapsUrl:mapsUrl('Deshaies Guadeloupe') },
+  { kicker:'Aéroport', title:'Pointe-à-Pitre (PTP)', address:'Aéroport du Raizet, Les Abymes', mapsUrl:mapsUrl('Aéroport Pointe-à-Pitre Le Raizet') },
+  { kicker:'Voiture', title:'Agence Sixt', address:'Centre de location, aéroport PTP', mapsUrl:mapsUrl('Sixt Aéroport Pointe-à-Pitre') },
+];
+
+const CATEGORIES = [
+  { id:'activites', label:'Activités' }, { id:'plages', label:'Plages' }, { id:'restaurants', label:'Restaurants' },
+  { id:'epiceries', label:'Épiceries' }, { id:'pharmacies', label:'Pharmacies' },
+];
+
+const TRAVELERS = [
+  { name:'Benoit Berthiaume', note:'Adulte' }, { name:'Jessica Barboza', note:'Adulte' },
+  { name:'Laurent Berthiaume', note:'7 ans' }, { name:'Leonard Berthiaume', note:'4 ans' },
+];
+
+const NEXT_STEP = { title:'Vol TS 894 — départ de Montréal', detail:'Samedi 8 août, décollage 7h05. Voiture Sixt prise en charge à midi.', cta:'Le vol', tab:'res' };
+
+const TOTAL_MISSING = RESERVATIONS.reduce((n,r)=>n+r.missing.length,0);
+const MISSING_PREVIEW = RESERVATIONS.flatMap(r=>r.missing.map(m=>r.title+' — '+m)).slice(0,3);
+
+// ---------- Helpers ----------
+function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function daysUntilDeparture(){
+  const now = new Date();
+  const trip = new Date(2026,7,8); trip.setHours(0,0,0,0);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.ceil((trip - today) / 86400000));
+}
+
+function accordionHtml(id, kicker, title, meta, bodyHtml){
+  return '<div class="card elev-sm acc" data-acc="'+id+'">'
+    + '<div class="acc-head" data-toggle="'+id+'">'
+    +   '<div style="min-width:0">'
+    +     (kicker ? '<div class="card-kicker">'+esc(kicker)+'</div>' : '')
+    +     '<div class="card-title">'+esc(title)+'</div>'
+    +   '</div>'
+    +   '<button class="toggle-btn" aria-hidden="true">+</button>'
+    + '</div>'
+    + (meta ? '<div class="card-meta">'+esc(meta)+'</div>' : '')
+    + '<div class="acc-body">'+bodyHtml+'</div>'
+    + '</div>';
+}
+
+// ---------- Screen renderers ----------
+function renderHome(){
+  const daysLeft = daysUntilDeparture();
+  let quick = [
+    ['itin','<rect x="3" y="4" width="18" height="17" rx="3"></rect><line x1="8" y1="2" x2="8" y2="6"></line><line x1="16" y1="2" x2="16" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>','Itinéraire'],
+    ['res','<rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>','Réservations'],
+    ['map','<path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.4"></circle>','Carte'],
+    ['info','<circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16.5"></line><circle cx="12" cy="7.8" r="0.6" fill="var(--color-accent-700)"></circle>','Infos pratiques'],
+  ];
+  let html = '<div style="padding:22px 18px 28px">'
+    + '<div class="greet">Bonjour Benoit &amp; Jessica</div>'
+    + '<div class="sub">Guadeloupe · 8 → 18 août 2026</div>'
+    + '<div class="card elev-md countdown"><div class="num">J-'+daysLeft+'</div><div class="lbl">avant le grand départ</div></div>'
+    + '<div class="card elev-sm" style="margin-top:14px">'
+    +   '<div class="card-kicker">Prochaine étape</div>'
+    +   '<div class="card-title">'+esc(NEXT_STEP.title)+'</div>'
+    +   '<p class="card-body">'+esc(NEXT_STEP.detail)+'</p>'
+    +   '<button class="btn btn-primary" style="align-self:flex-start;white-space:nowrap" data-goto="'+NEXT_STEP.tab+'">'+esc(NEXT_STEP.cta)+'</button>'
+    + '</div>'
+    + '<div class="quick-grid">'
+    + quick.map(q=>'<button class="quick-btn" data-goto="'+q[0]+'"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">'+q[1]+'</svg><span>'+q[2]+'</span></button>').join('')
+    + '</div>'
+    + '<div class="card elev-sm" style="margin-top:14px">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between">'
+    +     '<div class="card-kicker">Alertes &amp; infos manquantes</div>'
+    +     '<div class="tag tag-urgent">'+TOTAL_MISSING+'</div>'
+    +   '</div>'
+    +   MISSING_PREVIEW.map(m=>'<div class="row"><span class="dot">·</span>'+esc(m)+'</div>').join('')
+    +   '<button class="btn btn-secondary btn-block" data-goto="res">Tout voir dans Réservations</button>'
+    + '</div>'
+    + '</div>';
+  document.getElementById('screen-home').innerHTML = html;
+}
+
+function renderItin(){
+  let html = '<div style="padding:20px 18px 4px"><div class="eyebrow">8 → 18 août 2026 · 11 jours</div><div class="screen-title">Itinéraire</div></div>'
+    + '<div style="padding:12px 18px 28px;display:flex;flex-direction:column;gap:12px">'
+    + DAYS.map(d=>{
+        let body = '<p class="card-body">'+esc(d.detail)+'</p>';
+        if(d.horaire) body += '<div class="card-meta">Horaire suggéré · '+esc(d.horaire)+'</div>';
+        body += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:2px">';
+        if(d.mapsUrl) body += '<a class="btn btn-secondary" href="'+d.mapsUrl+'" target="_blank" rel="noopener">Google Maps</a>';
+        if(d.planPluie) body += '<div class="tag tag-accent-2">'+esc(d.planPluie)+'</div>';
+        if(d.energyExtra) body += '<div class="tag tag-outline">'+esc(d.energyExtra)+'</div>';
+        body += '</div>';
+        return accordionHtml('day:'+d.id, d.zone+' · '+d.date, d.title, null, body);
+      }).join('')
+    + '</div>';
+  document.getElementById('screen-itin').innerHTML = html;
+}
+
+function reservationBody(r){
+  let b = '<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">';
+  if(r.address) b += '<div style="font-size:13px"><strong>Adresse </strong>'+esc(r.address)+'</div>';
+  b += '<div style="font-size:13px"><strong>Contact </strong>'+esc(r.contact)+'</div>';
+  b += r.instructions.map(i=>'<div class="row"><span class="dot">·</span>'+esc(i)+'</div>').join('');
+  if(r.legs){
+    b += '<div style="display:flex;flex-direction:column;gap:8px">' + r.legs.map(leg=>
+      '<div class="leg"><div class="leg-hd">'+esc(leg.label)+' · '+esc(leg.date)+' · '+esc(leg.vol)+'</div>'
+      + '<div class="leg-route">'+esc(leg.route)+'</div>'
+      + '<div class="leg-time">Départ '+esc(leg.dep)+' · Arrivée '+esc(leg.arr)+'</div></div>'
+    ).join('') + '</div>';
+  }
+  if(r.mapsUrl) b += '<a class="btn btn-secondary" href="'+r.mapsUrl+'" target="_blank" rel="noopener" style="align-self:flex-start">Google Maps</a>';
+  if(r.missing.length){
+    b += '<div><div class="section-label" style="margin-bottom:6px">À confirmer</div><div style="display:flex;flex-wrap:wrap;gap:6px">'
+      + r.missing.map(m=>'<div class="tag tag-outline">'+esc(m)+'</div>').join('') + '</div></div>';
+  }
+  b += '</div>';
+  return b;
+}
+
+function renderRes(){
+  const groups = [
+    { cat:'vols', label:'Vols', bg:'var(--color-accent-100)', color:'var(--color-accent-700)', path:'<path d="M2.5 16.5 21 12l-6.5-8-2 1 3 6.5-6.5 2.5-3-2-1.5.5 2 4-4.5 1.5v1.5l4.5-1.5 2 4 1.5-.5-2-4z"/>' },
+    { cat:'voiture', label:'Voiture', bg:'var(--color-accent-100)', color:'var(--color-accent-700)', path:'<path d="M5 17h14M5 17a2 2 0 1 0 0 .01M19 17a2 2 0 1 0 0 .01M4 17l1.2-6.5A2 2 0 0 1 7.15 9h9.7a2 2 0 0 1 1.95 1.5L20 17"/>' },
+    { cat:'hebergements', label:'Hébergements', bg:'var(--color-accent-2-100)', color:'var(--color-accent-2-700)', path:'<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/>' },
+  ];
+  let html = '<div style="padding:20px 18px 4px"><div class="eyebrow">Vols · voiture · hébergements</div><div class="screen-title">Réservations</div></div>'
+    + '<div style="padding:12px 18px 28px;display:flex;flex-direction:column;gap:22px">'
+    + groups.map(g=>{
+        const items = RESERVATIONS.filter(r=>r.category===g.cat);
+        return '<div>'
+          + '<div class="res-group-head"><div class="res-group-icon" style="background:'+g.bg+'"><svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="'+g.color+'" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">'+g.path+'</svg></div><div class="h6" style="font-family:var(--font-heading);font-weight:500;font-size:15px;letter-spacing:.02em">'+g.label+'</div></div>'
+          + '<div style="display:flex;flex-direction:column;gap:12px">'
+          + items.map(r=>accordionHtml('res:'+r.id, r.kicker, r.title, r.dates, reservationBody(r))).join('')
+          + '</div></div>';
+      }).join('')
+    + '</div>';
+  document.getElementById('screen-res').innerHTML = html;
+}
+
+function renderMap(){
+  let html = '<div style="padding:20px 18px 4px"><div class="eyebrow">Lieux du séjour</div><div class="screen-title">Carte</div></div>'
+    + '<div style="padding:12px 18px 0"><div class="map-frame"><iframe title="Carte de la Guadeloupe" src="https://maps.google.com/maps?q=Guadeloupe&z=10&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div></div>'
+    + '<div style="padding:16px 18px 4px">'
+    +   '<div class="section-label">Explorer par catégorie</div>'
+    +   '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">'
+    +   CATEGORIES.map(c=>'<button class="tag cat-chip" data-cat="'+c.id+'">'+esc(c.label)+'</button>').join('')
+    +   '</div>'
+    +   '<div class="cat-msg" id="cat-msg"></div>'
+    + '</div>'
+    + '<div style="padding:16px 18px 28px;display:flex;flex-direction:column;gap:10px">'
+    + PLACES.map(p=>'<div class="card elev-sm"><div class="card-kicker">'+esc(p.kicker)+'</div><div class="card-title">'+esc(p.title)+'</div><div class="card-body">'+esc(p.address)+'</div><a class="btn btn-secondary" href="'+p.mapsUrl+'" target="_blank" rel="noopener" style="align-self:flex-start">Google Maps</a></div>').join('')
+    + '</div>';
+  document.getElementById('screen-map').innerHTML = html;
+}
+
+function renderInfo(){
+  let html = '<div style="padding:20px 18px 4px"><div class="eyebrow">Contacts · logements · à savoir</div><div class="screen-title">Infos pratiques</div></div>'
+    + '<div style="padding:12px 18px 0"><div class="card elev-sm">'
+    +   '<div class="card-kicker">Voyageurs &amp; contact</div>'
+    +   TRAVELERS.map(t=>'<div class="traveler-row"><span>'+esc(t.name)+'</span><span class="note">'+esc(t.note)+'</span></div>').join('')
+    +   '<div class="hr" style="margin:6px 0"></div>'
+    +   '<div style="font-size:13px;color:var(--color-text-secondary)">Coordonnées de contact conservées hors de l\'app.</div>'
+    + '</div></div>'
+    + '<div style="padding:14px 18px 28px;display:flex;flex-direction:column;gap:12px">'
+    + INFO_SECTIONS.map(sec=>{
+        let body = sec.groups.map(g=>
+          '<div><div class="section-label" style="margin-bottom:5px">'+esc(g.label)+'</div>'
+          + g.items.map(it=>'<div class="row" style="margin-bottom:2px"><span class="dot">·</span>'+esc(it)+'</div>').join('')
+          + '</div>'
+        ).join('');
+        return accordionHtml('info:'+sec.id, null, sec.title, sec.subtitle, '<div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">'+body+'</div>');
+      }).join('')
+    + '</div>';
+  document.getElementById('screen-info').innerHTML = html;
+}
+
+// ---------- Wiring ----------
+function setTab(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id === 'screen-'+tab));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelector('.screens').scrollTop = 0;
+}
+
+document.addEventListener('click', function(e){
+  const gotoBtn = e.target.closest('[data-goto]');
+  if(gotoBtn){ setTab(gotoBtn.dataset.goto); return; }
+
+  const tabBtn = e.target.closest('.tab-btn');
+  if(tabBtn){ setTab(tabBtn.dataset.tab); return; }
+
+  const accHead = e.target.closest('[data-toggle]');
+  if(accHead){
+    const card = accHead.closest('.acc');
+    const nowOpen = card.classList.toggle('open');
+    card.querySelector('.toggle-btn').textContent = nowOpen ? '–' : '+';
+    return;
+  }
+
+  const chip = e.target.closest('.cat-chip');
+  if(chip){
+    const wasActive = chip.classList.contains('active');
+    document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+    const msg = document.getElementById('cat-msg');
+    if(wasActive){
+      msg.style.display = 'none';
+    } else {
+      chip.classList.add('active');
+      const cat = CATEGORIES.find(c=>c.id===chip.dataset.cat);
+      msg.textContent = 'Aucun lieu enregistré pour « '+cat.label+' » — les adresses s\'ajouteront au fil du séjour.';
+      msg.style.display = 'block';
+    }
+  }
+});
+
+renderHome();
+renderItin();
+renderRes();
+renderMap();
+renderInfo();
+setTab('home');
+</script>
+</body>
 </html>
