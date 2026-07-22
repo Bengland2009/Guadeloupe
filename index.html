@@ -39,27 +39,12 @@ a:hover{color:var(--lagoon-press)}
 .app-shell nav button:nth-child(3) span::after{content:"Lieux";font-size:12px}
 [style*="/assets/icons/chevron-down.svg"]{-webkit-mask-image:url(assets/icons/chevron-down.svg) !important;mask-image:url(assets/icons/chevron-down.svg) !important}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="vendor/leaflet.css">
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+<script src="vendor/leaflet.js"></script>
 <script src="_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e/_ds_bundle.js"></script>
-<script type="text/babel">
-function SectionLabel({ label }) {
-  return <div style={{ padding: "2px 2px 6px", font: "600 18px/1.3 var(--font-family-base)", color: "var(--text-primary)" }}>{label}</div>;
-}
-window.SectionLabel = SectionLabel;
-function ScreenHeader({ title, subtitle }) {
-  return (
-    <div style={{ paddingBottom: 16, marginBottom: 8, borderBottom: "1px solid var(--border-default)" }}>
-      <div style={{ fontSize: 28, fontWeight: 700, color: "var(--text-primary)" }}>{title}</div>
-      {subtitle && <div style={{ font: "var(--text-caption)", color: "var(--text-secondary)", marginTop: 4 }}>{subtitle}</div>}
-    </div>
-  );
-}
-window.ScreenHeader = ScreenHeader;
-</script>
+<script src="./head-components.js"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -77,52 +62,13 @@ window.EPICERIES_NOTE = epiceriesNote;
 window.ALLERGY_BANNER = allergyBanner;
 window.LIEUX_RESTAURANTS = restaurants;
 </script>
-<script type="text/babel" src="./AccueilScreen.jsx"></script>
-<script type="text/babel" src="./VoyageScreen.jsx"></script>
-<script type="text/babel" src="./AdressesScreen.jsx"></script>
-<script type="text/babel" src="./PratiqueScreen.jsx"></script>
-<script type="text/babel" src="./AllergieScreen.jsx"></script>
-<script type="text/babel" src="./HebergementDetailScreen.jsx"></script>
-<script type="text/babel">
-const { BottomNav } = window.Guadeloupe2026DesignSystem_3f20c8;
-
-function App() {
-  const [tab, setTab] = React.useState("accueil");
-  const [ready, setReady] = React.useState(false);
-  React.useEffect(() => {
-    const t2 = setInterval(() => { if (window.__TRIP__ && window.AccueilScreen) { setReady(true); clearInterval(t2); } }, 20);
-    return () => clearInterval(t2);
-  }, []);
-  if (!ready) return null;
-  const D = { trip: window.__TRIP__ };
-  const screens = { accueil: window.AccueilScreen, voyage: window.VoyageScreen, adresses: window.AdressesScreen, pratique: window.PratiqueScreen, allergie: window.AllergieScreen };
-  const stayMeta = {
-    "raisins-clairs": { destination: "Saint-François", lat: 16.24671, lng: -61.28691, directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=16.24671,-61.28691", copyText: "16.24671, -61.28691", photo: "assets/photos/raisins-clairs.png", arrival: { weekday: "sam.", day: "8", label: "Après 17 h" }, departure: { weekday: "jeu.", day: "13", label: "Avant 10 h" }, details: ["Deux chambres climatisées", "Deux piscines", "Plage accessible à pied", "Laveuse et sécheuse", "Stationnement privé"] },
-    "bungalow-corossol": { destination: "Deshaies", lat: 16.275, lng: -61.802444, directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=16.275,-61.802444", copyText: "16.275, -61.802444", photo: "assets/photos/bungalow-corossol.png", arrival: { weekday: "jeu.", day: "13", label: "Après 15 h" }, departure: { weekday: "mar.", day: "18", label: "Avant 10 h" }, details: ["Une chambre climatisée", "Une chambre avec ventilateurs", "Piscine partagée"] },
-  };
-  let Screen = screens[tab];
-  let screenProps = { D, go: setTab };
-  if (tab.startsWith("stay-")) {
-    const stayId = tab.replace("stay-", "");
-    const s = window.__TRIP__.stays.find(x => x.id === stayId);
-    const meta = stayMeta[stayId];
-    Screen = window.HebergementDetailScreen;
-    screenProps = {
-      onBack: () => setTab("voyage"),
-      stay: { id: s.id, destination: meta.destination, name: s.name, host: s.host, dates: s.period.replace(" au ", " – "), lat: meta.lat, lng: meta.lng, directionsUrl: meta.directionsUrl, copyText: meta.copyText, photo: meta.photo, arrival: meta.arrival, departure: meta.departure, details: meta.details },
-    };
-  }
-  return (
-    <div className="app-shell">
-      <div className="scroll-area">
-        <Screen {...screenProps} />
-      </div>
-      <BottomNav active={tab} onChange={setTab} iconsBase="assets/icons" />
-    </div>
-  );
-}
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-</script>
+<script src="./AccueilScreen.js"></script>
+<script src="./VoyageScreen.js"></script>
+<script src="./AdressesScreen.js"></script>
+<script src="./PratiqueScreen.js"></script>
+<script src="./AllergieScreen.js"></script>
+<script src="./HebergementDetailScreen.js"></script>
+<script src="./app.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

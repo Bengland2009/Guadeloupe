@@ -1,4 +1,4 @@
-const CACHE_VERSION = "guadeloupe-2026-v1";
+const CACHE_VERSION = "guadeloupe-2026-v2";
 const DS_BASE = "./_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e";
 
 // Everything the app needs to boot and render, fully self-hosted. If any of
@@ -10,12 +10,23 @@ const PRECACHE_URLS = [
   "./manifest.json",
   "./data.js",
   "./lieuxData.js",
-  "./AccueilScreen.jsx",
-  "./VoyageScreen.jsx",
-  "./AdressesScreen.jsx",
-  "./PratiqueScreen.jsx",
-  "./AllergieScreen.jsx",
-  "./HebergementDetailScreen.jsx",
+  "./head-components.js",
+  "./app.js",
+  "./AccueilScreen.js",
+  "./VoyageScreen.js",
+  "./AdressesScreen.js",
+  "./PratiqueScreen.js",
+  "./AllergieScreen.js",
+  "./HebergementDetailScreen.js",
+  "./vendor/react.production.min.js",
+  "./vendor/react-dom.production.min.js",
+  "./vendor/leaflet.js",
+  "./vendor/leaflet.css",
+  "./vendor/images/marker-icon.png",
+  "./vendor/images/marker-icon-2x.png",
+  "./vendor/images/marker-shadow.png",
+  "./vendor/images/layers.png",
+  "./vendor/images/layers-2x.png",
   `${DS_BASE}/tokens/colors.css`,
   `${DS_BASE}/tokens/typography.css`,
   `${DS_BASE}/tokens/spacing.css`,
@@ -71,17 +82,13 @@ const PRECACHE_URLS = [
   "./assets/icons/x.svg",
 ];
 
-// Third-party CDN libraries (React, Babel, Leaflet, Google Fonts) and the
-// hotlinked hero photo. Warmed opportunistically at install time so the very
-// first visit already has them offline-ready, but a failure here (network
-// hiccup, a CDN blocking hotlinking) must NOT block the SW install — the
-// runtime fetch handler below will keep trying to cache them on every visit.
+// The only remaining third-party requests: the Google Fonts CSS (the actual
+// font files it references get picked up by the generic fetch handler below
+// as they're requested) and the hotlinked hero photo. Warmed opportunistically
+// at install time, but a failure here (network hiccup, a host blocking
+// hotlinking) must NOT block the SW install — everything else the app needs
+// to run is local and already in PRECACHE_URLS above.
 const BEST_EFFORT_URLS = [
-  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
-  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-  "https://unpkg.com/react@18.3.1/umd/react.development.js",
-  "https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js",
-  "https://unpkg.com/@babel/standalone@7.29.0/babel.min.js",
   "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   "https://www.ags-demenagement.com/outre-mer/wp-content/uploads/sites/2/2023/03/ile-dom-tom-guadeloupe-1080x675.jpg",
 ];
