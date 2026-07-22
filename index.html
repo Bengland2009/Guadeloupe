@@ -32,9 +32,10 @@ body{margin:0;background:var(--color-bg);font-family:var(--font-family-base)}
 a{color:var(--accent-lagoon)}
 a:hover{color:var(--lagoon-press)}
 #root{height:100%}
-.app-shell{width:100%;height:100%;background:var(--color-bg);position:relative;overflow:hidden}
+.app-shell{width:100%;height:100%;max-width:480px;margin:0 auto;background:var(--color-bg);position:relative;overflow:hidden}
 .app-shell .scroll-area{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none}
 .app-shell .scroll-area::-webkit-scrollbar{display:none}
+.app-shell nav{left:50% !important;right:auto !important;width:100%;max-width:480px;transform:translateX(-50%)}
 .app-shell nav button:nth-child(3) span{font-size:0 !important}
 .app-shell nav button:nth-child(3) span::after{content:"Lieux";font-size:12px}
 [style*="/assets/icons/chevron-down.svg"]{-webkit-mask-image:url(assets/icons/chevron-down.svg) !important;mask-image:url(assets/icons/chevron-down.svg) !important}
