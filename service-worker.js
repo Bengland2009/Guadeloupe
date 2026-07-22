@@ -1,4 +1,4 @@
-const CACHE_VERSION = "guadeloupe-2026-v2";
+const CACHE_VERSION = "guadeloupe-2026-v3";
 const DS_BASE = "./_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e";
 
 // Everything the app needs to boot and render, fully self-hosted. If any of
@@ -127,23 +127,38 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
+  // HTML navigations go network-first so a new deployment is picked up on the
+  // very next visit — serving the cached shell here would pin users to a stale
+  // (possibly broken) version forever. The cache is only the offline fallback.
+  if (req.mode === "navigate") {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE_VERSION);
+        try {
+          const res = await fetch(req);
+          if (res && res.ok) cache.put("./index.html", res.clone());
+          return res;
+        } catch (err) {
+          const fallback = await cache.match("./index.html");
+          if (fallback) return fallback;
+          throw err;
+        }
+      })()
+    );
+    return;
+  }
+
+  // Static assets: cache-first. Safe because every deployment bumps
+  // CACHE_VERSION, which re-fetches the whole precache list.
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_VERSION);
       const cached = await cache.match(req, { ignoreVary: true });
       if (cached) return cached;
 
-      try {
-        const res = await fetch(req);
-        if (res && (res.ok || res.type === "opaque")) cache.put(req, res.clone());
-        return res;
-      } catch (err) {
-        if (req.mode === "navigate") {
-          const fallback = await cache.match("./index.html");
-          if (fallback) return fallback;
-        }
-        throw err;
-      }
+      const res = await fetch(req);
+      if (res && (res.ok || res.type === "opaque")) cache.put(req, res.clone());
+      return res;
     })()
   );
 });
