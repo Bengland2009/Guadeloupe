@@ -50,7 +50,7 @@ function App() {
       lng: -61.28691,
       directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=16.24671,-61.28691",
       copyText: "16.24671, -61.28691",
-      photo: "assets/photos/raisins-clairs.png",
+      photo: "assets/photos/raisins-clairs.jpg",
       arrival: {
         weekday: "sam.",
         day: "8",
@@ -69,7 +69,7 @@ function App() {
       lng: -61.802444,
       directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=16.275,-61.802444",
       copyText: "16.275, -61.802444",
-      photo: "assets/photos/bungalow-corossol.png",
+      photo: "assets/photos/bungalow-corossol.jpg",
       arrival: {
         weekday: "jeu.",
         day: "13",
