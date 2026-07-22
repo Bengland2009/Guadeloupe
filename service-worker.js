@@ -1,0 +1,142 @@
+const CACHE_VERSION = "guadeloupe-2026-v1";
+const DS_BASE = "./_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e";
+
+// Everything the app needs to boot and render, fully self-hosted. If any of
+// these fail to fetch, the SW install fails on purpose — a partial app shell
+// is worse than none.
+const PRECACHE_URLS = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./data.js",
+  "./lieuxData.js",
+  "./AccueilScreen.jsx",
+  "./VoyageScreen.jsx",
+  "./AdressesScreen.jsx",
+  "./PratiqueScreen.jsx",
+  "./AllergieScreen.jsx",
+  "./HebergementDetailScreen.jsx",
+  `${DS_BASE}/tokens/colors.css`,
+  `${DS_BASE}/tokens/typography.css`,
+  `${DS_BASE}/tokens/spacing.css`,
+  `${DS_BASE}/tokens/radius.css`,
+  `${DS_BASE}/tokens/elevation.css`,
+  `${DS_BASE}/tokens/fonts.css`,
+  `${DS_BASE}/tokens/base.css`,
+  `${DS_BASE}/styles.css`,
+  `${DS_BASE}/_ds_bundle.js`,
+  "./assets/photos/raisins-clairs.png",
+  "./assets/photos/bungalow-corossol.png",
+  "./assets/icons/app/icon-192.png",
+  "./assets/icons/app/icon-512.png",
+  "./assets/icons/anchor.svg",
+  "./assets/icons/arrow-left.svg",
+  "./assets/icons/baby.svg",
+  "./assets/icons/battery-charging.svg",
+  "./assets/icons/bed.svg",
+  "./assets/icons/calendar.svg",
+  "./assets/icons/car.svg",
+  "./assets/icons/chevron-down.svg",
+  "./assets/icons/chevron-right.svg",
+  "./assets/icons/circle-check.svg",
+  "./assets/icons/clock.svg",
+  "./assets/icons/cloud-rain.svg",
+  "./assets/icons/compass.svg",
+  "./assets/icons/copy.svg",
+  "./assets/icons/external-link.svg",
+  "./assets/icons/heart-pulse.svg",
+  "./assets/icons/hospital.svg",
+  "./assets/icons/house.svg",
+  "./assets/icons/info.svg",
+  "./assets/icons/key-round.svg",
+  "./assets/icons/luggage.svg",
+  "./assets/icons/map-pin.svg",
+  "./assets/icons/map.svg",
+  "./assets/icons/menu.svg",
+  "./assets/icons/navigation.svg",
+  "./assets/icons/phone.svg",
+  "./assets/icons/pill.svg",
+  "./assets/icons/plane.svg",
+  "./assets/icons/plug.svg",
+  "./assets/icons/receipt.svg",
+  "./assets/icons/shield-alert.svg",
+  "./assets/icons/sun.svg",
+  "./assets/icons/thermometer.svg",
+  "./assets/icons/triangle-alert.svg",
+  "./assets/icons/umbrella.svg",
+  "./assets/icons/users.svg",
+  "./assets/icons/utensils.svg",
+  "./assets/icons/wallet.svg",
+  "./assets/icons/wifi.svg",
+  "./assets/icons/x.svg",
+];
+
+// Third-party CDN libraries (React, Babel, Leaflet, Google Fonts) and the
+// hotlinked hero photo. Warmed opportunistically at install time so the very
+// first visit already has them offline-ready, but a failure here (network
+// hiccup, a CDN blocking hotlinking) must NOT block the SW install — the
+// runtime fetch handler below will keep trying to cache them on every visit.
+const BEST_EFFORT_URLS = [
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+  "https://unpkg.com/react@18.3.1/umd/react.development.js",
+  "https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js",
+  "https://unpkg.com/@babel/standalone@7.29.0/babel.min.js",
+  "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  "https://www.ags-demenagement.com/outre-mer/wp-content/uploads/sites/2/2023/03/ile-dom-tom-guadeloupe-1080x675.jpg",
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(CACHE_VERSION);
+      await cache.addAll(PRECACHE_URLS);
+      await Promise.all(
+        BEST_EFFORT_URLS.map(async (url) => {
+          try {
+            const res = await fetch(url, { mode: "cors" });
+            if (res && (res.ok || res.type === "opaque")) await cache.put(url, res);
+          } catch (_) {
+            // offline during install, or the host blocks CORS/hotlinking — non-fatal
+          }
+        })
+      );
+      self.skipWaiting();
+    })()
+  );
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    (async () => {
+      const names = await caches.keys();
+      await Promise.all(names.filter((n) => n !== CACHE_VERSION).map((n) => caches.delete(n)));
+      await self.clients.claim();
+    })()
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  if (req.method !== "GET") return;
+
+  event.respondWith(
+    (async () => {
+      const cache = await caches.open(CACHE_VERSION);
+      const cached = await cache.match(req, { ignoreVary: true });
+      if (cached) return cached;
+
+      try {
+        const res = await fetch(req);
+        if (res && (res.ok || res.type === "opaque")) cache.put(req, res.clone());
+        return res;
+      } catch (err) {
+        if (req.mode === "navigate") {
+          const fallback = await cache.match("./index.html");
+          if (fallback) return fallback;
+        }
+        throw err;
+      }
+    })()
+  );
+});

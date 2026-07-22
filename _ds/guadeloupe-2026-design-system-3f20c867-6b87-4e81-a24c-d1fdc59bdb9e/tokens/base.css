@@ -1,0 +1,4 @@
+*{box-sizing:border-box}
+body{margin:0;background:var(--surface-page);color:var(--text-primary);font:var(--text-body);font-family:var(--font-family-base);-webkit-font-smoothing:antialiased}
+a{color:var(--accent-lagoon)}
+a:hover{color:var(--lagoon-press)}

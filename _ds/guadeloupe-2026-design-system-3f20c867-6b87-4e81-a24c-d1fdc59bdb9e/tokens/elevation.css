@@ -1,0 +1,13 @@
+:root{
+--shadow-card:0 1px 2px rgba(23,50,77,0.04),0 4px 12px rgba(23,50,77,0.06);
+--shadow-card-pressed:0 1px 1px rgba(23,50,77,0.05);
+--shadow-fab:0 6px 20px rgba(23,50,77,0.14);
+--shadow-nav:0 -2px 12px rgba(23,50,77,0.06);
+
+--ease-standard:cubic-bezier(0.4,0,0.2,1);
+--duration-fast:120ms;
+--duration-base:200ms;
+
+--min-tap:48px;
+--min-button-height:52px;
+}

@@ -1,0 +1,32 @@
+:root{
+--color-bg:#F7F3EA;
+--color-card:#FFFFFF;
+--color-text-primary:#17324D;
+--color-text-secondary:#64717D;
+--color-lagoon:#287D8E;
+--color-tropical-green:#52745D;
+--color-coral:#D66B4D;
+--color-border:#E5E0D7;
+--color-emergency:#B42318;
+--color-emergency-bg:#FEF3F2;
+--color-white:#FFFFFF;
+
+--surface-page:var(--color-bg);
+--surface-card:var(--color-card);
+--surface-emergency:var(--color-emergency-bg);
+--text-primary:var(--color-text-primary);
+--text-secondary:var(--color-text-secondary);
+--text-on-accent:#FFFFFF;
+--border-default:var(--color-border);
+--accent-lagoon:var(--color-lagoon);
+--accent-tropical:var(--color-tropical-green);
+--accent-coral:var(--color-coral);
+--accent-emergency:var(--color-emergency);
+
+--lagoon-tint-10:color-mix(in oklch,var(--color-lagoon) 10%,white);
+--lagoon-tint-16:color-mix(in oklch,var(--color-lagoon) 16%,white);
+--tropical-tint-14:color-mix(in oklch,var(--color-tropical-green) 14%,white);
+--coral-tint-14:color-mix(in oklch,var(--color-coral) 14%,white);
+--emergency-press:color-mix(in oklch,var(--color-emergency) 88%,black);
+--lagoon-press:color-mix(in oklch,var(--color-lagoon) 85%,black);
+}

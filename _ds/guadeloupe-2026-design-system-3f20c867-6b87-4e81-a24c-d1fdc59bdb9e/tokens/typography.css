@@ -1,0 +1,33 @@
+:root{
+--font-family-base:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
+--font-size-xs:12px;
+--font-size-sm:14px;
+--font-size-base:15px;
+--font-size-md:17px;
+--font-size-lg:20px;
+--font-size-xl:24px;
+--font-size-2xl:30px;
+--font-size-hero:44px;
+
+--line-height-tight:1.1;
+--line-height-snug:1.25;
+--line-height-normal:1.45;
+
+--font-weight-regular:400;
+--font-weight-medium:500;
+--font-weight-semibold:600;
+--font-weight-bold:700;
+--font-weight-black:800;
+
+--letter-spacing-tight:-0.02em;
+--letter-spacing-normal:0;
+--letter-spacing-wide:0.02em;
+
+--text-hero-time:var(--font-weight-bold) var(--font-size-hero)/var(--line-height-tight) var(--font-family-base);
+--text-title:var(--font-weight-bold) var(--font-size-xl)/var(--line-height-snug) var(--font-family-base);
+--text-section-label:var(--font-weight-semibold) var(--font-size-sm)/var(--line-height-normal) var(--font-family-base);
+--text-body:var(--font-weight-regular) var(--font-size-base)/var(--line-height-normal) var(--font-family-base);
+--text-caption:var(--font-weight-regular) var(--font-size-xs)/var(--line-height-normal) var(--font-family-base);
+--text-button:var(--font-weight-semibold) var(--font-size-md)/1 var(--font-family-base);
+}
