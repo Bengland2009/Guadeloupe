@@ -2,7 +2,11 @@ const {
   BottomNav
 } = window.Guadeloupe2026DesignSystem_3f20c8;
 function App() {
-  const [tab, setTab] = React.useState("accueil");
+  const [tab, setTab] = React.useState(() => {
+    const saved = sessionStorage.getItem("returnToTab");
+    if (saved) sessionStorage.removeItem("returnToTab");
+    return saved || "accueil";
+  });
   const [ready, setReady] = React.useState(false);
   const [slow, setSlow] = React.useState(false);
   React.useEffect(() => {

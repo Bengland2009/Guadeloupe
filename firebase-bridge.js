@@ -18,7 +18,7 @@ const firebaseConfig = {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged,
+  getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import {
   getFirestore, enableIndexedDbPersistence, collection, addDoc, updateDoc, deleteDoc,
@@ -37,8 +37,27 @@ enableIndexedDbPersistence(db).catch(() => {
 
 const IDEAS_COLLECTION = "ideas";
 
+// Après un retour de signInWithRedirect, le résultat peut échouer
+// silencieusement (domaine bloqué, cookies tiers désactivés, etc.). On capture
+// l'erreur ici pour pouvoir l'afficher dans l'écran au lieu de laisser
+// l'utilisateur bloqué dans une boucle "se connecter" sans explication.
+window.__fbLastAuthError = null;
+getRedirectResult(auth)
+  .then((result) => {
+    if (result && result.user) {
+      window.__fbLastAuthError = null;
+    }
+  })
+  .catch((err) => {
+    window.__fbLastAuthError = { code: err.code || "inconnu", message: err.message || String(err) };
+    window.dispatchEvent(new Event("firebase-auth-error"));
+  });
+
 window.__fb = {
-  signIn: () => signInWithRedirect(auth, provider),
+  signIn: () => {
+    window.__fbLastAuthError = null;
+    return signInWithRedirect(auth, provider);
+  },
   signOutUser: () => signOut(auth),
   onAuthChange: (cb) => onAuthStateChanged(auth, cb),
 

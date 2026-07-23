@@ -337,12 +337,18 @@ function IdeesPartageesScreen({
   const [status, setStatus] = React.useState("explorer");
   const [formOpen, setFormOpen] = React.useState(false);
   const [editing, setEditing] = React.useState(null);
+  const [authError, setAuthError] = React.useState(window.__fbLastAuthError || null);
   React.useEffect(() => {
     if (ready) return;
     const onFbReady = () => setReady(true);
     window.addEventListener("firebase-ready", onFbReady);
     return () => window.removeEventListener("firebase-ready", onFbReady);
   }, [ready]);
+  React.useEffect(() => {
+    const onAuthError = () => setAuthError(window.__fbLastAuthError || null);
+    window.addEventListener("firebase-auth-error", onAuthError);
+    return () => window.removeEventListener("firebase-auth-error", onAuthError);
+  }, []);
   React.useEffect(() => {
     if (!ready) return;
     return window.__fb.onAuthChange(u => setUser(u || null));
@@ -433,8 +439,22 @@ function IdeesPartageesScreen({
     }, "Connecte-toi avec Google pour voir et ajouter des idées de voyage, synchronisées entre vos deux téléphones."), /*#__PURE__*/React.createElement(Button, {
       variant: "primary",
       fullWidth: true,
-      onClick: () => window.__fb.signIn()
-    }, "Se connecter avec Google")));
+      onClick: () => {
+        sessionStorage.setItem("returnToTab", "idees-partagees");
+        window.__fb.signIn();
+      }
+    }, "Se connecter avec Google"), authError && /*#__PURE__*/React.createElement("div", {
+      style: {
+        font: "var(--text-caption)",
+        color: "var(--accent-emergency)",
+        background: "var(--surface-emergency)",
+        borderRadius: "var(--radius-input)",
+        padding: 10,
+        textAlign: "left",
+        width: "100%",
+        boxSizing: "border-box"
+      }
+    }, "La dernière tentative de connexion a échoué : ", authError.code, " — ", authError.message)));
   }
   if (permError) {
     return /*#__PURE__*/React.createElement("div", {
