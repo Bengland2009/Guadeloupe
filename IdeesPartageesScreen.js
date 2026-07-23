@@ -454,7 +454,7 @@ function IdeesPartageesScreen({
         width: "100%",
         boxSizing: "border-box"
       }
-    }, "La dernière tentative de connexion a échoué : ", authError.code, " — ", authError.message)));
+    }, "La dernière tentative de connexion a échoué", authError.via ? ` (${authError.via})` : "", " : ", authError.code, " — ", authError.message)));
   }
   if (permError) {
     return /*#__PURE__*/React.createElement("div", {

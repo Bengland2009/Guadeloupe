@@ -49,7 +49,7 @@ getRedirectResult(auth)
     }
   })
   .catch((err) => {
-    window.__fbLastAuthError = { code: err.code || "inconnu", message: err.message || String(err) };
+    window.__fbLastAuthError = { code: err.code || "inconnu", message: err.message || String(err), via: "retour-redirection" };
     window.dispatchEvent(new Event("firebase-auth-error"));
   });
 
@@ -73,11 +73,15 @@ window.__fb = {
         try {
           await signInWithRedirect(auth, provider);
         } catch (err2) {
-          window.__fbLastAuthError = { code: err2.code || "inconnu", message: err2.message || String(err2) };
+          window.__fbLastAuthError = { code: err2.code || "inconnu", message: err2.message || String(err2), via: "redirect" };
           window.dispatchEvent(new Event("firebase-auth-error"));
         }
-      } else if (err.code !== "auth/cancelled-popup-request" && err.code !== "auth/popup-closed-by-user") {
-        window.__fbLastAuthError = { code: err.code || "inconnu", message: err.message || String(err) };
+      } else if (err.code !== "auth/cancelled-popup-request") {
+        // On affiche même "popup-closed-by-user", car certains navigateurs
+        // mobiles déclenchent ce code à tort (faux positif) quand la page de
+        // connexion Google applique des politiques de sécurité qui empêchent
+        // Firebase de vérifier correctement l'état du popup.
+        window.__fbLastAuthError = { code: err.code || "inconnu", message: err.message || String(err), via: "popup" };
         window.dispatchEvent(new Event("firebase-auth-error"));
       }
     }
