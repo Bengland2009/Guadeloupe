@@ -40,7 +40,7 @@ function CategoryGrid({
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr",
-      gap: 8
+      gap: 6
     }
   }, window.LIEUX_CATEGORIES.map(c => {
     const active = value === c.key;
@@ -51,22 +51,23 @@ function CategoryGrid({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: 8,
+        gap: 6,
         minHeight: 48,
-        padding: "6px 8px",
-        borderRadius: "var(--radius-card)",
-        border: active ? "1px solid var(--accent-lagoon)" : "1px solid var(--border-default)",
-        background: active ? "var(--lagoon-tint-16)" : "#fff",
+        padding: "4px 8px",
+        borderRadius: "var(--radius-chip)",
+        border: active ? "1px solid var(--accent-lagoon)" : "1px solid transparent",
+        background: active ? "var(--lagoon-tint-16)" : "var(--color-bg)",
         color: active ? "var(--accent-lagoon)" : "var(--text-secondary)",
         font: "var(--text-caption)",
-        fontWeight: active ? 700 : 600,
-        fontSize: 13,
-        cursor: "pointer"
+        fontWeight: active ? 700 : 500,
+        fontSize: 12,
+        cursor: "pointer",
+        boxShadow: "none"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        width: 16,
-        height: 16,
+        width: 14,
+        height: 14,
         background: active ? "var(--accent-lagoon)" : "var(--text-secondary)",
         WebkitMaskImage: `url(assets/icons/${c.icon}.svg)`,
         maskImage: `url(assets/icons/${c.icon}.svg)`,
