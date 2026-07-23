@@ -76,6 +76,7 @@ function IdeaForm({
   const [sector, setSector] = React.useState(initial ? initial.sector : window.LIEUX_SECTORS[0].key);
   const [note, setNote] = React.useState(initial ? initial.note || "" : "");
   const [mapsUrl, setMapsUrl] = React.useState(initial ? initial.mapsUrl || "" : "");
+  const [status, setStatus] = React.useState(initial ? initial.status || "explorer" : "explorer");
   const inputStyle = {
     width: "100%",
     minHeight: 44,
@@ -100,7 +101,8 @@ function IdeaForm({
       category,
       sector,
       note: note.trim(),
-      mapsUrl: mapsUrl.trim()
+      mapsUrl: mapsUrl.trim(),
+      status
     });
   };
   return /*#__PURE__*/React.createElement("div", {
@@ -194,7 +196,38 @@ function IdeaForm({
     onChange: e => setMapsUrl(e.target.value),
     placeholder: "https://maps.app.goo.gl/...",
     style: inputStyle
-  })), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: label
+  }, "Statut"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6
+    }
+  }, [{
+    key: "explorer",
+    label: "À explorer"
+  }, {
+    key: "retenue",
+    label: "Retenue"
+  }].map(s => {
+    const active = status === s.key;
+    return /*#__PURE__*/React.createElement("button", {
+      key: s.key,
+      onClick: () => setStatus(s.key),
+      style: {
+        flex: 1,
+        minHeight: 40,
+        borderRadius: "var(--radius-button)",
+        border: active ? "1px solid var(--accent-lagoon)" : "1px solid var(--border-default)",
+        background: active ? "var(--lagoon-tint-16)" : "#fff",
+        color: active ? "var(--accent-lagoon)" : "var(--text-secondary)",
+        font: "var(--text-caption)",
+        fontWeight: active ? 700 : 500,
+        fontSize: 13,
+        cursor: "pointer"
+      }
+    }, s.label);
+  }))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -216,7 +249,7 @@ function IdeaForm({
     variant: "primary",
     fullWidth: true,
     onClick: submit
-  }, "Enregistrer"))));
+  }, initial ? "Enregistrer les modifications" : "Enregistrer"))));
 }
 function IdeaCard({
   idea,
@@ -236,7 +269,7 @@ function IdeaCard({
       background: "#fff",
       borderRadius: "var(--radius-card)",
       border: "1px solid var(--border-default)",
-      padding: 14,
+      padding: "14px 6px 14px 14px",
       display: "flex",
       flexDirection: "column",
       gap: 8
@@ -246,31 +279,29 @@ function IdeaCard({
       display: "flex",
       alignItems: "flex-start",
       justifyContent: "space-between",
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => onEdit(idea),
-    style: {
-      background: "none",
-      border: "none",
-      padding: 0,
-      textAlign: "left",
-      cursor: "pointer",
-      flex: 1
+      gap: 4
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       font: "var(--text-body)",
       fontWeight: 700,
       fontSize: 16,
-      color: "var(--text-primary)"
+      color: "var(--text-primary)",
+      flex: 1,
+      paddingTop: 12
     }
-  }, idea.name)), /*#__PURE__*/React.createElement("button", {
-    onClick: () => onDelete(idea.id),
-    "aria-label": "Supprimer",
+  }, idea.name), /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 28,
-      height: 28,
+      display: "flex",
+      alignItems: "center",
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => onEdit(idea),
+    "aria-label": "Modifier",
+    style: {
+      width: 48,
+      height: 48,
       flexShrink: 0,
       border: "none",
       background: "none",
@@ -281,17 +312,43 @@ function IdeaCard({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 14,
-      height: 14,
+      width: 18,
+      height: 18,
       background: "var(--text-secondary)",
-      WebkitMaskImage: "url(assets/icons/x.svg)",
-      maskImage: "url(assets/icons/x.svg)",
+      WebkitMaskImage: "url(assets/icons/pencil.svg)",
+      maskImage: "url(assets/icons/pencil.svg)",
       WebkitMaskSize: "contain",
       maskSize: "contain",
       WebkitMaskRepeat: "no-repeat",
       maskRepeat: "no-repeat"
     }
-  }))), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => onDelete(idea.id),
+    "aria-label": "Supprimer",
+    style: {
+      width: 48,
+      height: 48,
+      flexShrink: 0,
+      border: "none",
+      background: "none",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 18,
+      height: 18,
+      background: "var(--text-secondary)",
+      WebkitMaskImage: "url(assets/icons/trash.svg)",
+      maskImage: "url(assets/icons/trash.svg)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat"
+    }
+  })))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexWrap: "wrap",
@@ -527,9 +584,15 @@ function IdeesPartageesScreen({
     setEditing(null);
   };
   const save = data => {
-    if (editing) window.__fb.updateIdea(editing.id, data);else window.__fb.addIdea({
+    // En édition, on ne touche pas à createdByEmail (auteur d'origine conservé
+    // automatiquement puisqu'on ne l'inclut pas dans la mise à jour) — on
+    // ajoute seulement qui a modifié l'idée. updatedAt est déjà horodaté par
+    // updateIdea côté pont Firebase.
+    if (editing) window.__fb.updateIdea(editing.id, {
       ...data,
-      status: "explorer",
+      lastModifiedByEmail: user.email
+    });else window.__fb.addIdea({
+      ...data,
       createdByEmail: user.email
     });
     closeForm();

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "guadeloupe-2026-v17";
+const CACHE_VERSION = "guadeloupe-2026-v18";
 const DS_BASE = "./_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e";
 
 // Everything the app needs to boot and render, fully self-hosted. If any of
@@ -68,6 +68,7 @@ const PRECACHE_URLS = [
   "./assets/icons/map.svg",
   "./assets/icons/menu.svg",
   "./assets/icons/navigation.svg",
+  "./assets/icons/pencil.svg",
   "./assets/icons/phone.svg",
   "./assets/icons/pill.svg",
   "./assets/icons/plane.svg",
@@ -76,6 +77,7 @@ const PRECACHE_URLS = [
   "./assets/icons/shield-alert.svg",
   "./assets/icons/sun.svg",
   "./assets/icons/thermometer.svg",
+  "./assets/icons/trash.svg",
   "./assets/icons/triangle-alert.svg",
   "./assets/icons/umbrella.svg",
   "./assets/icons/users.svg",
