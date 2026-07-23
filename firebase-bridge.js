@@ -30,6 +30,39 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
+// ---------------------------------------------------------------------------
+// Journal de connexion visible à l'écran.
+// Le flux d'authentification peut recharger entièrement la page (redirection),
+// ce qui efface toute variable en mémoire. On persiste donc chaque étape dans
+// localStorage pour reconstituer la chronologie complète après le retour et
+// l'afficher dans l'écran « Nos idées » — beaucoup plus fiable que d'espérer
+// qu'une erreur soit levée.
+// ---------------------------------------------------------------------------
+const LOG_KEY = "fbAuthLog";
+function fbLog(msg) {
+  try {
+    const t = new Date().toTimeString().slice(0, 8);
+    const arr = JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
+    arr.push(`${t}  ${msg}`);
+    while (arr.length > 25) arr.shift();
+    localStorage.setItem(LOG_KEY, JSON.stringify(arr));
+  } catch (_) { /* localStorage indisponible — non bloquant */ }
+  window.dispatchEvent(new Event("firebase-log"));
+}
+window.__fbGetLog = () => {
+  try { return JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch (_) { return []; }
+};
+window.__fbClearLog = () => {
+  try { localStorage.removeItem(LOG_KEY); } catch (_) {}
+  window.dispatchEvent(new Event("firebase-log"));
+};
+
+fbLog("bridge chargé");
+
+// Trace persistante de chaque changement d'état d'authentification, pour voir
+// si un utilisateur est bien obtenu puis, éventuellement, perdu.
+onAuthStateChanged(auth, (u) => fbLog("état auth : " + (u ? u.email : "aucun (null)")));
+
 enableIndexedDbPersistence(db).catch(() => {
   // Échec attendu si l'app est ouverte dans plusieurs onglets en même temps —
   // non bloquant, la synchronisation continue de fonctionner en ligne.
@@ -44,11 +77,13 @@ const IDEAS_COLLECTION = "ideas";
 window.__fbLastAuthError = null;
 getRedirectResult(auth)
   .then((result) => {
+    fbLog("getRedirectResult : " + (result && result.user ? "OK " + result.user.email : "aucun résultat"));
     if (result && result.user) {
       window.__fbLastAuthError = null;
     }
   })
   .catch((err) => {
+    fbLog("getRedirectResult ERREUR : " + (err.code || err.message));
     window.__fbLastAuthError = { code: err.code || "inconnu", message: err.message || String(err), via: "retour-redirection" };
     window.dispatchEvent(new Event("firebase-auth-error"));
   });
@@ -66,13 +101,17 @@ const REDIRECT_FALLBACK_CODES = new Set([
 window.__fb = {
   signIn: async () => {
     window.__fbLastAuthError = null;
+    fbLog("signIn : tentative popup");
     try {
-      await signInWithPopup(auth, provider);
+      const cred = await signInWithPopup(auth, provider);
+      fbLog("popup OK : " + (cred && cred.user ? cred.user.email : "sans utilisateur ?!"));
     } catch (err) {
       if (REDIRECT_FALLBACK_CODES.has(err.code)) {
+        fbLog("popup impossible (" + err.code + ") → redirection");
         try {
           await signInWithRedirect(auth, provider);
         } catch (err2) {
+          fbLog("redirection ERREUR : " + (err2.code || err2.message));
           window.__fbLastAuthError = { code: err2.code || "inconnu", message: err2.message || String(err2), via: "redirect" };
           window.dispatchEvent(new Event("firebase-auth-error"));
         }
@@ -81,8 +120,11 @@ window.__fb = {
         // mobiles déclenchent ce code à tort (faux positif) quand la page de
         // connexion Google applique des politiques de sécurité qui empêchent
         // Firebase de vérifier correctement l'état du popup.
+        fbLog("popup ERREUR : " + (err.code || err.message));
         window.__fbLastAuthError = { code: err.code || "inconnu", message: err.message || String(err), via: "popup" };
         window.dispatchEvent(new Event("firebase-auth-error"));
+      } else {
+        fbLog("popup annulé (auth/cancelled-popup-request)");
       }
     }
   },
