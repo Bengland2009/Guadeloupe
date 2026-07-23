@@ -124,6 +124,7 @@ function AccueilScreen({
       color: "#fff",
       fontWeight: 600,
       marginTop: 2,
+      marginLeft: 2,
       textShadow: "0 2px 12px rgba(0,0,0,0.35)"
     }
   }, "8 au 18 août · Voyage familial")))), /*#__PURE__*/React.createElement("div", {
