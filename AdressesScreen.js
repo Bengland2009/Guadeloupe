@@ -275,203 +275,105 @@ function RestoCard({
     icon: "assets/icons/map-pin.svg"
   }, "Itinéraire"))));
 }
-
-// Idées : babillard personnel, stocké uniquement sur cet appareil (localStorage).
-// Pas de synchronisation entre téléphones — choix assumé, pas de backend pour cette app.
-const IDEES_KEY = "guadeloupe2026_idees";
-function loadIdees() {
-  try {
-    const raw = JSON.parse(localStorage.getItem(IDEES_KEY) || "[]");
-    return Array.isArray(raw) ? raw : [];
-  } catch (e) {
-    return [];
-  }
-}
-function saveIdees(list) {
-  try {
-    localStorage.setItem(IDEES_KEY, JSON.stringify(list));
-  } catch (e) {}
-}
-function IdeeCard({
-  idee,
-  onDelete
+function IdeesLinkCard({
+  go
 }) {
-  const {
-    Button
-  } = window.Guadeloupe2026DesignSystem_3f20c8;
-  return /*#__PURE__*/React.createElement("div", {
+  const [fbReady, setFbReady] = React.useState(!!window.__fb);
+  const [ideaCount, setIdeaCount] = React.useState(null);
+  React.useEffect(() => {
+    if (fbReady) return;
+    const onReady = () => setFbReady(true);
+    window.addEventListener("firebase-ready", onReady);
+    return () => window.removeEventListener("firebase-ready", onReady);
+  }, [fbReady]);
+  React.useEffect(() => {
+    if (!fbReady) return;
+    let unsubIdeas = null;
+    const unsubAuth = window.__fb.onAuthChange(user => {
+      if (unsubIdeas) {
+        unsubIdeas();
+        unsubIdeas = null;
+      }
+      if (user) {
+        unsubIdeas = window.__fb.subscribeIdeas(list => setIdeaCount(list.length), () => setIdeaCount(null));
+      } else {
+        setIdeaCount(null);
+      }
+    });
+    return () => {
+      unsubAuth && unsubAuth();
+      if (unsubIdeas) unsubIdeas();
+    };
+  }, [fbReady]);
+  return /*#__PURE__*/React.createElement("button", {
+    onClick: () => go("idees-partagees"),
     style: {
-      background: "#fff",
-      borderRadius: "var(--radius-card)",
-      border: "1px solid var(--border-default)",
-      padding: 14,
-      display: "flex",
-      flexDirection: "column",
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "flex-start",
-      justifyContent: "space-between",
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      font: "var(--text-body)",
-      fontWeight: 700,
-      fontSize: 16,
-      color: "var(--text-primary)"
-    }
-  }, idee.name), /*#__PURE__*/React.createElement("button", {
-    onClick: () => onDelete(idee.id),
-    "aria-label": "Supprimer",
-    style: {
-      width: 28,
-      height: 28,
-      flexShrink: 0,
-      border: "none",
-      background: "none",
-      cursor: "pointer",
       display: "flex",
       alignItems: "center",
-      justifyContent: "center"
+      gap: 10,
+      width: "100%",
+      minHeight: 50,
+      padding: "0 14px",
+      borderRadius: "var(--radius-chip)",
+      border: "none",
+      background: "var(--coral-tint-14)",
+      cursor: "pointer",
+      textAlign: "left"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 14,
-      height: 14,
-      background: "var(--text-secondary)",
-      WebkitMaskImage: "url(assets/icons/x.svg)",
-      maskImage: "url(assets/icons/x.svg)",
+      width: 20,
+      height: 20,
+      background: "var(--accent-coral)",
+      WebkitMaskImage: "url(assets/icons/lightbulb.svg)",
+      maskImage: "url(assets/icons/lightbulb.svg)",
       WebkitMaskSize: "contain",
       maskSize: "contain",
       WebkitMaskRepeat: "no-repeat",
-      maskRepeat: "no-repeat"
+      maskRepeat: "no-repeat",
+      flexShrink: 0
     }
-  }))), idee.note && /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: "var(--text-body)",
+      fontWeight: 700,
+      fontSize: 15,
+      color: "var(--text-primary)",
+      flex: 1
+    }
+  }, "Nos idées"), ideaCount !== null && /*#__PURE__*/React.createElement("span", {
     style: {
       font: "var(--text-caption)",
-      color: "var(--text-primary)"
+      fontSize: 12,
+      color: "var(--text-secondary)",
+      fontWeight: 500,
+      flexShrink: 0
     }
-  }, idee.note), /*#__PURE__*/React.createElement("a", {
-    href: window.mapsUrl(idee.name + " Guadeloupe"),
-    target: "_blank",
-    rel: "noopener",
+  }, ideaCount, " idée", ideaCount > 1 ? "s" : ""), /*#__PURE__*/React.createElement("div", {
     style: {
-      textDecoration: "none",
-      marginTop: 4
+      width: 13,
+      height: 13,
+      background: "var(--accent-coral)",
+      WebkitMaskImage: "url(assets/icons/chevron-right.svg)",
+      maskImage: "url(assets/icons/chevron-right.svg)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      flexShrink: 0
     }
-  }, /*#__PURE__*/React.createElement(Button, {
-    variant: "secondary",
-    fullWidth: true,
-    icon: "assets/icons/map-pin.svg"
-  }, "Itinéraire")));
-}
-function AddIdeeForm({
-  onAdd,
-  onCancel
-}) {
-  const {
-    Button
-  } = window.Guadeloupe2026DesignSystem_3f20c8;
-  const [name, setName] = React.useState("");
-  const [note, setNote] = React.useState("");
-  const inputStyle = {
-    width: "100%",
-    minHeight: 44,
-    padding: "0 12px",
-    borderRadius: "var(--radius-input)",
-    border: "1px solid var(--border-default)",
-    font: "var(--text-body)",
-    color: "var(--text-primary)",
-    boxSizing: "border-box"
-  };
-  const submit = () => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    onAdd({
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      name: trimmed,
-      note: note.trim()
-    });
-  };
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#fff",
-      borderRadius: "var(--radius-card)",
-      border: "1px solid var(--accent-lagoon)",
-      padding: 14,
-      display: "flex",
-      flexDirection: "column",
-      gap: 10
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    autoFocus: true,
-    value: name,
-    onChange: e => setName(e.target.value),
-    placeholder: "Nom de l'endroit",
-    style: inputStyle
-  }), /*#__PURE__*/React.createElement("textarea", {
-    value: note,
-    onChange: e => setNote(e.target.value),
-    placeholder: "Note (optionnel)",
-    rows: 2,
-    style: {
-      ...inputStyle,
-      minHeight: 60,
-      padding: "10px 12px",
-      resize: "vertical",
-      fontFamily: "inherit"
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement(Button, {
-    variant: "secondary",
-    fullWidth: true,
-    onClick: onCancel
-  }, "Annuler")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement(Button, {
-    variant: "primary",
-    fullWidth: true,
-    onClick: submit
-  }, "Ajouter"))));
+  }));
 }
 function AdressesScreen({
-  D
+  D,
+  go
 }) {
-  const {
-    Button
-  } = window.Guadeloupe2026DesignSystem_3f20c8;
   const [sector, setSector] = React.useState(() => {
     const s = window.currentSector();
     return s === "de" ? "de" : "sf";
   });
   const [cat, setCat] = React.useState("epiceries");
-  const [idees, setIdees] = React.useState(loadIdees);
-  const [addingIdee, setAddingIdee] = React.useState(false);
   const places = window.LIEUX_PLACES.filter(p => p.category === cat && p.sector === sector);
-  const addIdee = idee => {
-    const next = [idee, ...idees];
-    setIdees(next);
-    saveIdees(next);
-    setAddingIdee(false);
-  };
-  const deleteIdee = id => {
-    const next = idees.filter(i => i.id !== id);
-    setIdees(next);
-    saveIdees(next);
-  };
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -482,6 +384,8 @@ function AdressesScreen({
   }, /*#__PURE__*/React.createElement(window.ScreenHeader, {
     title: "Lieux",
     subtitle: "Suggestions utiles sur place"
+  }), /*#__PURE__*/React.createElement(IdeesLinkCard, {
+    go: go
   }), /*#__PURE__*/React.createElement(SectorPicker, {
     value: sector,
     onChange: setSector
@@ -534,16 +438,7 @@ function AdressesScreen({
       font: "var(--text-caption)",
       color: "var(--text-primary)"
     }
-  }, window.ALLERGY_BANNER.body)), cat === "idees" && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#fff",
-      border: "1px solid var(--border-default)",
-      borderRadius: "var(--radius-card)",
-      padding: 12,
-      font: "var(--text-caption)",
-      color: "var(--text-secondary)"
-    }
-  }, "Notes personnelles, gardées uniquement sur cet appareil — pas partagées automatiquement."), /*#__PURE__*/React.createElement("div", {
+  }, window.ALLERGY_BANNER.body)), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
@@ -558,24 +453,6 @@ function AdressesScreen({
   })), cat === "restos" && window.LIEUX_RESTAURANTS.map(r => /*#__PURE__*/React.createElement(RestoCard, {
     key: r.id,
     r: r
-  })), cat === "idees" && /*#__PURE__*/React.createElement(React.Fragment, null, addingIdee ? /*#__PURE__*/React.createElement(AddIdeeForm, {
-    onAdd: addIdee,
-    onCancel: () => setAddingIdee(false)
-  }) : /*#__PURE__*/React.createElement(Button, {
-    variant: "secondary",
-    fullWidth: true,
-    onClick: () => setAddingIdee(true)
-  }, "+ Ajouter une idée"), idees.length === 0 && !addingIdee && /*#__PURE__*/React.createElement("div", {
-    style: {
-      font: "var(--text-caption)",
-      color: "var(--text-secondary)",
-      textAlign: "center",
-      padding: "12px 0"
-    }
-  }, "Aucune idée pour l'instant."), idees.map(i => /*#__PURE__*/React.createElement(IdeeCard, {
-    key: i.id,
-    idee: i,
-    onDelete: deleteIdee
-  })))));
+  }))));
 }
 window.AdressesScreen = AdressesScreen;

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "guadeloupe-2026-v7";
+const CACHE_VERSION = "guadeloupe-2026-v8";
 const DS_BASE = "./_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e";
 
 // Everything the app needs to boot and render, fully self-hosted. If any of
@@ -18,6 +18,8 @@ const PRECACHE_URLS = [
   "./PratiqueScreen.js",
   "./AllergieScreen.js",
   "./HebergementDetailScreen.js",
+  "./IdeesPartageesScreen.js",
+  "./firebase-bridge.js",
   "./vendor/react.production.min.js",
   "./vendor/react-dom.production.min.js",
   "./vendor/leaflet.js",
@@ -60,6 +62,7 @@ const PRECACHE_URLS = [
   "./assets/icons/house.svg",
   "./assets/icons/info.svg",
   "./assets/icons/key-round.svg",
+  "./assets/icons/lightbulb.svg",
   "./assets/icons/luggage.svg",
   "./assets/icons/map-pin.svg",
   "./assets/icons/map.svg",
@@ -91,6 +94,9 @@ const PRECACHE_URLS = [
 const BEST_EFFORT_URLS = [
   "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   "https://www.ags-demenagement.com/outre-mer/wp-content/uploads/sites/2/2023/03/ile-dom-tom-guadeloupe-1080x675.jpg",
+  "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js",
+  "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js",
+  "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js",
 ];
 
 self.addEventListener("install", (event) => {

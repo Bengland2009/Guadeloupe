@@ -88,7 +88,12 @@ function App() {
     D,
     go: setTab
   };
-  if (tab.startsWith("stay-")) {
+  if (tab === "idees-partagees") {
+    Screen = window.IdeesPartageesScreen;
+    screenProps = {
+      onBack: () => setTab("adresses")
+    };
+  } else if (tab.startsWith("stay-")) {
     const stayId = tab.replace("stay-", "");
     const s = window.__TRIP__.stays.find(x => x.id === stayId);
     const meta = stayMeta[stayId];

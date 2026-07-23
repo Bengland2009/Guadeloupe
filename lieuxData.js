@@ -8,7 +8,6 @@ export const categories = [
   { key: "restos", label: "Restos", icon: "utensils" },
   { key: "avoir", label: "À voir", icon: "compass" },
   { key: "plages", label: "Plages", icon: "umbrella" },
-  { key: "idees", label: "Idées", icon: "sun" },
 ];
 
 export function currentSector(now = new Date()) {
