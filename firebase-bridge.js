@@ -18,7 +18,7 @@ const firebaseConfig = {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged,
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import {
   getFirestore, enableIndexedDbPersistence, collection, addDoc, updateDoc, deleteDoc,
@@ -53,10 +53,34 @@ getRedirectResult(auth)
     window.dispatchEvent(new Event("firebase-auth-error"));
   });
 
+// Le popup préserve le geste utilisateur (le clic) tout au long de la
+// connexion, contrairement à la redirection qui quitte puis recharge
+// entièrement la page — beaucoup plus fiable sur mobile. On ne bascule vers
+// signInWithRedirect que si le popup est réellement impossible (bloqué par
+// le navigateur ou environnement qui ne le supporte pas).
+const REDIRECT_FALLBACK_CODES = new Set([
+  "auth/popup-blocked",
+  "auth/operation-not-supported-in-this-environment",
+]);
+
 window.__fb = {
-  signIn: () => {
+  signIn: async () => {
     window.__fbLastAuthError = null;
-    return signInWithRedirect(auth, provider);
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      if (REDIRECT_FALLBACK_CODES.has(err.code)) {
+        try {
+          await signInWithRedirect(auth, provider);
+        } catch (err2) {
+          window.__fbLastAuthError = { code: err2.code || "inconnu", message: err2.message || String(err2) };
+          window.dispatchEvent(new Event("firebase-auth-error"));
+        }
+      } else if (err.code !== "auth/cancelled-popup-request" && err.code !== "auth/popup-closed-by-user") {
+        window.__fbLastAuthError = { code: err.code || "inconnu", message: err.message || String(err) };
+        window.dispatchEvent(new Event("firebase-auth-error"));
+      }
+    }
   },
   signOutUser: () => signOut(auth),
   onAuthChange: (cb) => onAuthStateChanged(auth, cb),
