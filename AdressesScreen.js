@@ -40,7 +40,8 @@ function CategoryGrid({
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr",
-      gap: 6
+      columnGap: 8,
+      rowGap: 5
     }
   }, window.LIEUX_CATEGORIES.map(c => {
     const active = value === c.key;
@@ -52,11 +53,11 @@ function CategoryGrid({
         alignItems: "center",
         justifyContent: "center",
         gap: 6,
-        minHeight: 48,
-        padding: "4px 8px",
+        height: 48,
+        padding: "0 8px",
         borderRadius: "var(--radius-chip)",
-        border: active ? "1px solid var(--accent-lagoon)" : "1px solid transparent",
-        background: active ? "var(--lagoon-tint-16)" : "var(--color-bg)",
+        border: active ? "1px solid var(--accent-lagoon)" : "1px solid var(--border-default)",
+        background: active ? "var(--lagoon-tint-16)" : "#fff",
         color: active ? "var(--accent-lagoon)" : "var(--text-secondary)",
         font: "var(--text-caption)",
         fontWeight: active ? 700 : 500,
