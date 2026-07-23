@@ -75,8 +75,24 @@ window.LIEUX_RESTAURANTS = restaurants;
 <script src="./app.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
+  // Quand une nouvelle version du service worker prend le contrôle, on recharge
+  // la page une seule fois pour basculer immédiatement sur la nouvelle version —
+  // plus besoin de fermer/rouvrir l'app manuellement.
+  let reloadedForUpdate = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloadedForUpdate) return;
+    reloadedForUpdate = true;
+    window.location.reload();
+  });
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js").catch(() => {});
+    navigator.serviceWorker.register("service-worker.js").then((reg) => {
+      // Cherche une mise à jour tout de suite…
+      reg.update();
+      // …et à chaque fois que l'app revient au premier plan.
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") reg.update();
+      });
+    }).catch(() => {});
   });
 }
 </script>

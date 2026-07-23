@@ -345,6 +345,14 @@ function AccueilScreen({
       WebkitMaskRepeat: "no-repeat",
       maskRepeat: "no-repeat"
     }
-  })))));
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: "var(--text-caption)",
+      fontSize: 11,
+      color: "var(--text-secondary)",
+      textAlign: "center",
+      opacity: 0.7
+    }
+  }, "Version ", window.APP_VERSION || "?"));
 }
 window.AccueilScreen = AccueilScreen;
