@@ -1,4 +1,4 @@
-const CACHE_VERSION = "guadeloupe-2026-v12";
+const CACHE_VERSION = "guadeloupe-2026-v13";
 const DS_BASE = "./_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e";
 
 // Everything the app needs to boot and render, fully self-hosted. If any of

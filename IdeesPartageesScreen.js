@@ -6,55 +6,20 @@ function displayName(email) {
   return KNOWN_NAMES[email] || (email ? email.split("@")[0] : "");
 }
 
-// Panneau de diagnostic repliable : affiche la chronologie exacte du flux de
-// connexion (persistée dans localStorage, donc conservée même après le
-// rechargement complet de page provoqué par une redirection).
-function DebugLog() {
-  const [log, setLog] = React.useState(() => window.__fbGetLog ? window.__fbGetLog() : []);
-  React.useEffect(() => {
-    const on = () => setLog(window.__fbGetLog ? window.__fbGetLog() : []);
-    window.addEventListener("firebase-log", on);
-    return () => window.removeEventListener("firebase-log", on);
-  }, []);
-  if (!log.length) return null;
-  return /*#__PURE__*/React.createElement("details", {
-    style: {
-      width: "100%",
-      textAlign: "left",
-      marginTop: 4
-    }
-  }, /*#__PURE__*/React.createElement("summary", {
-    style: {
-      font: "var(--text-caption)",
-      fontSize: 12,
-      color: "var(--text-secondary)",
-      cursor: "pointer"
-    }
-  }, "Détails techniques de connexion (", log.length, ")"), /*#__PURE__*/React.createElement("pre", {
-    style: {
-      fontSize: 11,
-      lineHeight: 1.5,
-      color: "var(--text-secondary)",
-      background: "var(--color-bg)",
-      border: "1px solid var(--border-default)",
-      borderRadius: 8,
-      padding: 8,
-      overflowX: "auto",
-      whiteSpace: "pre-wrap",
-      margin: "6px 0 0"
-    }
-  }, log.join("\n")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => window.__fbClearLog && window.__fbClearLog(),
+// Petit repère de version affiché en bas de l'écran. Permet à Benoit et Jessica
+// de vérifier d'un coup d'œil qu'ils voient tous les deux la même version —
+// donc que l'app s'est bien rafraîchie après une mise à jour.
+function VersionTag() {
+  return /*#__PURE__*/React.createElement("div", {
     style: {
       font: "var(--text-caption)",
       fontSize: 11,
-      color: "var(--accent-lagoon)",
-      background: "none",
-      border: "none",
-      cursor: "pointer",
-      padding: "4px 0"
+      color: "var(--text-secondary)",
+      textAlign: "center",
+      opacity: 0.7,
+      paddingTop: 8
     }
-  }, "Effacer le journal"));
+  }, "Version ", window.APP_VERSION || "?");
 }
 function StatusTabs({
   value,
@@ -428,7 +393,7 @@ function IdeesPartageesScreen({
         textAlign: "center",
         padding: "40px 0"
       }
-    }, "Chargement…"), /*#__PURE__*/React.createElement(DebugLog, null));
+    }, "Chargement…"));
   }
   if (!user) {
     return /*#__PURE__*/React.createElement("div", {
@@ -505,7 +470,7 @@ function IdeesPartageesScreen({
         width: "100%",
         boxSizing: "border-box"
       }
-    }, "La dernière tentative de connexion a échoué", authError.via ? ` (${authError.via})` : "", " : ", authError.code, " — ", authError.message), /*#__PURE__*/React.createElement(DebugLog, null)));
+    }, "La dernière tentative de connexion a échoué", authError.via ? ` (${authError.via})` : "", " : ", authError.code, " — ", authError.message)), /*#__PURE__*/React.createElement(VersionTag, null));
   }
   if (permError) {
     return /*#__PURE__*/React.createElement("div", {
@@ -635,7 +600,7 @@ function IdeesPartageesScreen({
     onEdit: openEdit,
     onDelete: window.__fb.deleteIdea,
     onToggleStatus: toggleStatus
-  }))));
+  }))), /*#__PURE__*/React.createElement(VersionTag, null));
 }
 function BackHeader({
   onBack,
