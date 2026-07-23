@@ -1,3 +1,94 @@
+// Coordonnées reprises des mêmes hébergements utilisés ailleurs dans l'app
+// (voir app.jsx / stayMeta), pour rester cohérent avec le reste du voyage.
+const WEATHER_PLACES = {
+  sf: {
+    lat: 16.24671,
+    lng: -61.28691,
+    label: "Saint-François"
+  },
+  de: {
+    lat: 16.275,
+    lng: -61.802444,
+    label: "Deshaies"
+  }
+};
+
+// Règle volontairement simple, propre à la météo : bascule au tout début du
+// 13 août, sans tenir compte de l'heure exacte du transfert (contrairement à
+// currentSector() utilisé pour la page Lieux).
+function currentWeatherPlace(now = new Date()) {
+  return now < new Date(2026, 7, 13) ? "sf" : "de";
+}
+function weatherIconName(code) {
+  if (code === 0 || code === 1) return "sun";
+  if (code === 2 || code === 3 || code >= 45 && code <= 48) return "cloud";
+  return "cloud-rain";
+}
+function WeatherBadge() {
+  const [weather, setWeather] = React.useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("weatherCache") || "null");
+    } catch (_) {
+      return null;
+    }
+  });
+  React.useEffect(() => {
+    const place = currentWeatherPlace();
+    const {
+      lat,
+      lng
+    } = WEATHER_PLACES[place];
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code&timezone=auto`).then(res => res.ok ? res.json() : Promise.reject()).then(data => {
+      const next = {
+        place,
+        temp: Math.round(data.current.temperature_2m),
+        code: data.current.weather_code,
+        fetchedAt: Date.now()
+      };
+      setWeather(next);
+      try {
+        localStorage.setItem("weatherCache", JSON.stringify(next));
+      } catch (_) {}
+    }).catch(() => {
+      // Hors ligne ou API indisponible : on garde ce qui est déjà affiché
+      // (la dernière météo mise en cache, ou rien si on n'en a encore
+      // jamais obtenu).
+    });
+  }, []);
+  if (!weather) return null;
+  const label = WEATHER_PLACES[weather.place].label;
+  const icon = weatherIconName(weather.code);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 6,
+      background: "var(--lagoon-tint-16)",
+      borderRadius: "var(--radius-pill)",
+      padding: "6px 12px",
+      whiteSpace: "nowrap"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 14,
+      height: 14,
+      background: "var(--accent-lagoon)",
+      WebkitMaskImage: `url(assets/icons/${icon}.svg)`,
+      maskImage: `url(assets/icons/${icon}.svg)`,
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      flexShrink: 0
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: "var(--text-caption)",
+      fontWeight: 700,
+      color: "var(--accent-lagoon)"
+    }
+  }, weather.temp, "° ", label));
+}
 function AccueilScreen({
   D,
   go
@@ -161,34 +252,7 @@ function AccueilScreen({
       justifyContent: "space-between",
       gap: 12
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 6,
-      background: "var(--lagoon-tint-16)",
-      borderRadius: "var(--radius-pill)",
-      padding: "6px 12px"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 14,
-      height: 14,
-      background: "var(--accent-lagoon)",
-      WebkitMaskImage: "url(assets/icons/calendar.svg)",
-      maskImage: "url(assets/icons/calendar.svg)",
-      WebkitMaskSize: "contain",
-      maskSize: "contain",
-      WebkitMaskRepeat: "no-repeat",
-      maskRepeat: "no-repeat"
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      font: "var(--text-caption)",
-      fontWeight: 700,
-      color: "var(--accent-lagoon)"
-    }
-  }, status.badge))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(WeatherBadge, null)), /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative",
       fontSize: 32,
