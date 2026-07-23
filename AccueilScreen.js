@@ -72,9 +72,45 @@ function AccueilScreen({
       position: "absolute",
       top: 20,
       left: 16,
-      right: 16
+      right: 16,
+      display: "flex",
+      alignItems: "center",
+      gap: 12
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: "34",
+    height: "34",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "#FFC93C",
+    strokeWidth: "2.4",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    style: {
+      flexShrink: 0,
+      filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.45))"
+    }
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "4"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 2v2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 20v2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m4.93 4.93 1.41 1.41"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m17.66 17.66 1.41 1.41"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M2 12h2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M20 12h2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m6.34 17.66-1.41 1.41"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "m19.07 4.93-1.41 1.41"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 32,
       fontWeight: 700,
@@ -90,7 +126,7 @@ function AccueilScreen({
       marginTop: 2,
       textShadow: "0 2px 12px rgba(0,0,0,0.35)"
     }
-  }, "8 au 18 août · Voyage familial"))), /*#__PURE__*/React.createElement("div", {
+  }, "8 au 18 août · Voyage familial")))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "0 16px",
       marginTop: -64
