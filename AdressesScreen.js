@@ -343,15 +343,49 @@ function IdeesLinkCard({
       color: "var(--text-primary)",
       flex: 1
     }
-  }, "Nos idées"), ideaCount !== null && /*#__PURE__*/React.createElement("span", {
+  }, "Nos idées"), ideaCount !== null && /*#__PURE__*/React.createElement("div", {
     style: {
-      font: "var(--text-caption)",
-      fontSize: 12,
-      color: "var(--text-secondary)",
-      fontWeight: 500,
+      position: "relative",
+      width: 22,
+      height: 22,
       flexShrink: 0
     }
-  }, ideaCount, " idée", ideaCount > 1 ? "s" : ""), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      margin: "auto",
+      width: 18,
+      height: 18,
+      background: "var(--accent-coral)",
+      WebkitMaskImage: "url(assets/icons/bell.svg)",
+      maskImage: "url(assets/icons/bell.svg)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat"
+    }
+  }), ideaCount > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: -4,
+      right: -6,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 999,
+      background: "var(--accent-emergency)",
+      color: "#fff",
+      font: "var(--text-caption)",
+      fontSize: 10,
+      fontWeight: 700,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "0 3px",
+      lineHeight: 1,
+      boxSizing: "border-box"
+    }
+  }, ideaCount)), /*#__PURE__*/React.createElement("div", {
     style: {
       width: 13,
       height: 13,
