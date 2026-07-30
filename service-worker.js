@@ -1,4 +1,4 @@
-const CACHE_VERSION = "guadeloupe-2026-v23";
+const CACHE_VERSION = "guadeloupe-2026-v24";
 const DS_BASE = "./_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e";
 
 // Everything the app needs to boot and render, fully self-hosted. If any of
@@ -133,23 +133,48 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Fichiers de code de l'app : ils changent à chaque mise à jour de
+// fonctionnalité. S'ils restaient en cache-first comme les icônes/photos,
+// index.html pourrait se mettre à jour (réseau d'abord) pendant qu'eux
+// restent coincés sur une ancienne version encore en cache — exactement le
+// genre d'incohérence vécue lors des tests. Ils passent donc en réseau
+// d'abord, comme les navigations.
+const APP_CODE_FILES = [
+  "app.js",
+  "AccueilScreen.js",
+  "VoyageScreen.js",
+  "AdressesScreen.js",
+  "PratiqueScreen.js",
+  "AllergieScreen.js",
+  "HebergementDetailScreen.js",
+  "IdeesPartageesScreen.js",
+  "firebase-bridge.js",
+  "data.js",
+  "lieuxData.js",
+  "head-components.js",
+];
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
-  // HTML navigations go network-first so a new deployment is picked up on the
-  // very next visit — serving the cached shell here would pin users to a stale
-  // (possibly broken) version forever. The cache is only the offline fallback.
-  if (req.mode === "navigate") {
+  const url = new URL(req.url);
+  const isAppCode = APP_CODE_FILES.some((f) => url.pathname.endsWith("/" + f));
+
+  // Navigations et code de l'app : réseau d'abord, pour qu'une mise à jour
+  // soit visible immédiatement et de façon cohérente entre tous les
+  // fichiers. Le cache ne sert que de repli hors ligne.
+  if (req.mode === "navigate" || isAppCode) {
+    const cacheKey = req.mode === "navigate" ? "./index.html" : req;
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_VERSION);
         try {
           const res = await fetch(req);
-          if (res && res.ok) cache.put("./index.html", res.clone());
+          if (res && res.ok) cache.put(cacheKey, res.clone());
           return res;
         } catch (err) {
-          const fallback = await cache.match("./index.html");
+          const fallback = await cache.match(cacheKey, { ignoreVary: true });
           if (fallback) return fallback;
           throw err;
         }
@@ -158,8 +183,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets: cache-first. Safe because every deployment bumps
-  // CACHE_VERSION, which re-fetches the whole precache list.
+  // Tout le reste (icônes, photos, polices, librairies vendues) : cache
+  // d'abord. Ces fichiers changent rarement, et chaque déploiement bumpe de
+  // toute façon CACHE_VERSION, qui re-télécharge tout le pré-cache.
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_VERSION);
