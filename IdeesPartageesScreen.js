@@ -88,6 +88,20 @@ function extractLatLngFromText(text) {
   };
   return null;
 }
+
+// Le champ « Lien Google Maps » sert aussi de destination pour le bouton
+// Itinéraire. Le partage mobile de Google Maps donne par défaut un lien
+// raccourci (maps.app.goo.gl) sans coordonnées visibles — pour permettre de
+// coller directement des coordonnées copiées (option « Copier les
+// coordonnées » d'un appui long sur le lieu), on reconstruit un lien Google
+// Maps valide à partir d'elles plutôt que d'utiliser le texte brut comme URL.
+function ideaMapsHref(idea) {
+  const raw = idea.mapsUrl;
+  if (raw && /^https?:\/\//i.test(raw)) return raw;
+  const coords = extractLatLngFromText(raw);
+  if (coords) return `https://www.google.com/maps?q=${coords.lat},${coords.lng}`;
+  return window.mapsUrl(idea.name + " Guadeloupe");
+}
 function useDriveMinutes(idea) {
   const cached = idea.driveMinutes != null && idea.driveMinutesV === DRIVE_TIME_VERSION;
   const [minutes, setMinutes] = React.useState(cached ? idea.driveMinutes : null);
@@ -129,6 +143,16 @@ function useDriveMinutes(idea) {
       let step = "géocodage";
       try {
         let dest = extractLatLngFromText(idea.mapsUrl);
+        // Un lien est présent mais sans coordonnées lisibles — typiquement un
+        // lien raccourci (maps.app.goo.gl), le format par défaut du bouton
+        // Partager de l'app mobile Google Maps. Impossible à résoudre depuis
+        // le navigateur (pas de serveur ici pour suivre la redirection). On
+        // le dit directement plutôt que de retomber sur une recherche par nom
+        // qui a de bonnes chances d'échouer aussi pour ce genre de lieu.
+        if (!dest && idea.mapsUrl) {
+          setDebugInfo(`ce lien ne montre pas les coordonnées (lien raccourci ?) — remplace-le par : appui long sur le lieu dans Maps, puis « Copier les coordonnées »`);
+          return;
+        }
         if (!dest) {
           const sec = window.LIEUX_SECTORS && window.LIEUX_SECTORS.find(s => s.key === idea.sector);
           let geo = sec ? await geocode(`${idea.name} ${sec.label} Guadeloupe`) : {
@@ -499,10 +523,10 @@ function IdeaForm({
     }
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: label
-  }, "Lien Google Maps (optionnel)"), /*#__PURE__*/React.createElement("input", {
+  }, "Lien Google Maps ou coordonnées (optionnel)"), /*#__PURE__*/React.createElement("input", {
     value: mapsUrl,
     onChange: e => setMapsUrl(e.target.value),
-    placeholder: "https://maps.app.goo.gl/...",
+    placeholder: "16.275, -61.804",
     style: inputStyle
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -511,7 +535,7 @@ function IdeaForm({
       color: "var(--text-secondary)",
       marginTop: 4
     }
-  }, "Astuce : un lien complet (pas raccourci), avec les coordonnées visibles dans l'adresse, donne un temps de route plus précis.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, "Pour un temps de route précis : dans Maps, appui long sur le lieu, puis « Copier les coordonnées » et colle-les ici. Un lien « Partager » est souvent raccourci et ne fonctionne pas pour ce calcul.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: label
   }, "Lien d'information (optionnel) — ex. page Facebook de l'événement"), /*#__PURE__*/React.createElement("input", {
     value: infoUrl,
@@ -585,7 +609,7 @@ function IdeaCard({
   } = window.Guadeloupe2026DesignSystem_3f20c8;
   const cat = IDEA_CATEGORIES.find(c => c.key === idea.category);
   const sec = window.LIEUX_SECTORS.find(s => s.key === idea.sector);
-  const href = idea.mapsUrl || window.mapsUrl(idea.name + " Guadeloupe");
+  const href = ideaMapsHref(idea);
   const {
     minutes: driveMinutes,
     debugInfo: driveDebugInfo
