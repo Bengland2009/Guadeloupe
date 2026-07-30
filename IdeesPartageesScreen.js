@@ -150,6 +150,7 @@ function IdeaForm({
   const toggleDate = iso => setDates(prev => prev.includes(iso) ? prev.filter(d => d !== iso) : [...prev, iso].sort());
   const [note, setNote] = React.useState(initial ? initial.note || "" : "");
   const [mapsUrl, setMapsUrl] = React.useState(initial ? initial.mapsUrl || "" : "");
+  const [infoUrl, setInfoUrl] = React.useState(initial ? initial.infoUrl || "" : "");
   const [status, setStatus] = React.useState(initial ? initial.status || "explorer" : "explorer");
   const inputStyle = {
     width: "100%",
@@ -177,6 +178,7 @@ function IdeaForm({
       dates,
       note: note.trim(),
       mapsUrl: mapsUrl.trim(),
+      infoUrl: infoUrl.trim(),
       status
     });
   };
@@ -275,6 +277,13 @@ function IdeaForm({
     value: mapsUrl,
     onChange: e => setMapsUrl(e.target.value),
     placeholder: "https://maps.app.goo.gl/...",
+    style: inputStyle
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: label
+  }, "Lien d'information (optionnel) — ex. page Facebook de l'événement"), /*#__PURE__*/React.createElement("input", {
+    value: infoUrl,
+    onChange: e => setInfoUrl(e.target.value),
+    placeholder: "https://facebook.com/...",
     style: inputStyle
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: label
@@ -477,7 +486,18 @@ function IdeaCard({
     fullWidth: true,
     icon: "assets/icons/circle-check.svg",
     onClick: () => onToggleStatus(idea)
-  }, idea.status === "retenue" ? "À explorer" : "Retenir"))));
+  }, idea.status === "retenue" ? "À explorer" : "Retenir"))), idea.infoUrl && /*#__PURE__*/React.createElement("a", {
+    href: idea.infoUrl,
+    target: "_blank",
+    rel: "noopener",
+    style: {
+      textDecoration: "none"
+    }
+  }, /*#__PURE__*/React.createElement(Button, {
+    variant: "secondary",
+    fullWidth: true,
+    icon: "assets/icons/external-link.svg"
+  }, "Plus d'infos")));
 }
 function IdeesPartageesScreen({
   onBack
