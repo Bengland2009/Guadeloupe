@@ -69,10 +69,10 @@ function App() {
     },
     "bungalow-corossol": {
       destination: "Deshaies",
-      lat: 16.275,
-      lng: -61.802444,
-      directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=16.275,-61.802444",
-      copyText: "16.275, -61.802444",
+      lat: 16.275037,
+      lng: -61.804011,
+      directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=16.275037,-61.804011",
+      copyText: "16.275037, -61.804011",
       photo: "assets/photos/bungalow-corossol.jpg",
       arrival: {
         weekday: "jeu.",

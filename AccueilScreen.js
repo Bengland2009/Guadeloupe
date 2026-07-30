@@ -7,8 +7,8 @@ const WEATHER_PLACES = {
     label: "Saint-François"
   },
   de: {
-    lat: 16.275,
-    lng: -61.802444,
+    lat: 16.275037,
+    lng: -61.804011,
     label: "Deshaies"
   }
 };

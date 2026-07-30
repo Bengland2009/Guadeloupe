@@ -11,8 +11,8 @@ const CARTE_HEBERGEMENTS = [{
   id: "bungalow-corossol",
   name: "Bungalow Corossol",
   sub: "13 – 18 août",
-  lat: 16.275,
-  lng: -61.802444
+  lat: 16.275037,
+  lng: -61.804011
 }];
 
 // Style visuel des marqueurs, cohérent avec le badge lagoon/tropical déjà
