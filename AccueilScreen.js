@@ -217,8 +217,11 @@ function TodayTomorrowEvents({
   if (!ideas) return null;
   const todayISO = toISODate(new Date());
   const tomorrowISO = toISODate(new Date(Date.now() + 86400000));
-  const todayIdeas = ideas.filter(i => i.date === todayISO);
-  const tomorrowIdeas = ideas.filter(i => i.date === tomorrowISO);
+  const todayIdeas = ideas.filter(i => (i.dates || []).includes(todayISO));
+  const todayIds = new Set(todayIdeas.map(i => i.id));
+  // Si un événement tombe à la fois aujourd'hui et demain (ex. sur deux
+  // jours consécutifs), on ne le répète pas dans la section « Demain ».
+  const tomorrowIdeas = ideas.filter(i => !todayIds.has(i.id) && (i.dates || []).includes(tomorrowISO));
   if (!todayIdeas.length && !tomorrowIdeas.length) return null;
   const sectorLabel = key => {
     const s = window.LIEUX_SECTORS.find(x => x.key === key);

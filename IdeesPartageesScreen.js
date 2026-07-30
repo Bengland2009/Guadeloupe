@@ -30,11 +30,52 @@ const IDEA_CATEGORIES = [{
   label: "Événement",
   icon: "calendar"
 }];
-const MONTHS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
-function formatIdeaDate(iso) {
-  if (!iso) return "";
-  const [, m, d] = iso.split("-").map(Number);
-  return `${d} ${MONTHS_FR[m - 1]}`;
+
+// Les 11 jours du voyage (8 au 18 août 2026), pour le sélecteur de jours
+// individuels — permet des événements non consécutifs (ex. 11, 12 et 14 août)
+// sans supposer que tous les jours entre les deux sont concernés.
+const TRIP_DAYS = Array.from({
+  length: 11
+}, (_, i) => `2026-08-${String(8 + i).padStart(2, "0")}`);
+
+// Idea.dates : tableau de dates ISO ("2026-08-11"), ou absent/vide si aucune
+// date n'est associée à l'idée.
+function formatIdeaDates(idea) {
+  const dates = idea.dates || [];
+  if (!dates.length) return "";
+  const days = dates.slice().sort().map(iso => Number(iso.split("-")[2]));
+  return `${days.join(", ")} août`;
+}
+function DayPicker({
+  selected,
+  onToggle
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 6
+    }
+  }, TRIP_DAYS.map(iso => {
+    const day = Number(iso.split("-")[2]);
+    const active = selected.includes(iso);
+    return /*#__PURE__*/React.createElement("button", {
+      key: iso,
+      onClick: () => onToggle(iso),
+      style: {
+        minWidth: 40,
+        minHeight: 40,
+        borderRadius: "var(--radius-button)",
+        border: active ? "1px solid var(--accent-lagoon)" : "1px solid var(--border-default)",
+        background: active ? "var(--lagoon-tint-16)" : "#fff",
+        color: active ? "var(--accent-lagoon)" : "var(--text-secondary)",
+        font: "var(--text-caption)",
+        fontWeight: active ? 700 : 500,
+        fontSize: 13,
+        cursor: "pointer"
+      }
+    }, day);
+  }));
 }
 
 // Petit repère de version affiché en bas de l'écran. Permet à Benoit et Jessica
@@ -105,7 +146,8 @@ function IdeaForm({
   const [name, setName] = React.useState(initial ? initial.name : "");
   const [category, setCategory] = React.useState(initial ? initial.category : IDEA_CATEGORIES[0].key);
   const [sector, setSector] = React.useState(initial ? initial.sector : window.LIEUX_SECTORS[0].key);
-  const [date, setDate] = React.useState(initial ? initial.date || "" : "");
+  const [dates, setDates] = React.useState(initial ? initial.dates || [] : []);
+  const toggleDate = iso => setDates(prev => prev.includes(iso) ? prev.filter(d => d !== iso) : [...prev, iso].sort());
   const [note, setNote] = React.useState(initial ? initial.note || "" : "");
   const [mapsUrl, setMapsUrl] = React.useState(initial ? initial.mapsUrl || "" : "");
   const [status, setStatus] = React.useState(initial ? initial.status || "explorer" : "explorer");
@@ -132,7 +174,7 @@ function IdeaForm({
       name: trimmed,
       category,
       sector,
-      date,
+      dates,
       note: note.trim(),
       mapsUrl: mapsUrl.trim(),
       status
@@ -211,13 +253,9 @@ function IdeaForm({
     }, s.label);
   }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: label
-  }, "Date (optionnel) — pour un événement ponctuel"), /*#__PURE__*/React.createElement("input", {
-    type: "date",
-    min: "2026-08-08",
-    max: "2026-08-18",
-    value: date,
-    onChange: e => setDate(e.target.value),
-    style: inputStyle
+  }, "Date(s) (optionnel) — pour un événement ponctuel"), /*#__PURE__*/React.createElement(DayPicker, {
+    selected: dates,
+    onToggle: toggleDate
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: label
   }, "Note (optionnel)"), /*#__PURE__*/React.createElement("textarea", {
@@ -400,9 +438,9 @@ function IdeaCard({
     tone: "lagoon"
   }, cat.label), sec && /*#__PURE__*/React.createElement(Badge, {
     tone: "tropical"
-  }, sec.label), idea.date && /*#__PURE__*/React.createElement(Badge, {
+  }, sec.label), idea.dates && idea.dates.length > 0 && /*#__PURE__*/React.createElement(Badge, {
     tone: "coral"
-  }, formatIdeaDate(idea.date))), idea.note && /*#__PURE__*/React.createElement("div", {
+  }, formatIdeaDates(idea))), idea.note && /*#__PURE__*/React.createElement("div", {
     style: {
       font: "var(--text-caption)",
       color: "var(--text-primary)"
