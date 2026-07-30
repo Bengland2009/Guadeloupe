@@ -6,6 +6,37 @@ function displayName(email) {
   return KNOWN_NAMES[email] || (email ? email.split("@")[0] : "");
 }
 
+// Catégories propres aux idées — distinctes de window.LIEUX_CATEGORIES (page
+// Lieux), pour ne pas ajouter une 5e case à sa grille 2x2. « Événement » sert
+// aux trucs ponctuels (festival, marché nocturne) plutôt qu'aux lieux fixes.
+const IDEA_CATEGORIES = [{
+  key: "epiceries",
+  label: "Épiceries",
+  icon: "receipt"
+}, {
+  key: "restos",
+  label: "Restos",
+  icon: "utensils"
+}, {
+  key: "avoir",
+  label: "À voir",
+  icon: "compass"
+}, {
+  key: "plages",
+  label: "Plages",
+  icon: "umbrella"
+}, {
+  key: "evenement",
+  label: "Événement",
+  icon: "calendar"
+}];
+const MONTHS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+function formatIdeaDate(iso) {
+  if (!iso) return "";
+  const [, m, d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS_FR[m - 1]}`;
+}
+
 // Petit repère de version affiché en bas de l'écran. Permet à Benoit et Jessica
 // de vérifier d'un coup d'œil qu'ils voient tous les deux la même version —
 // donc que l'app s'est bien rafraîchie après une mise à jour.
@@ -72,8 +103,9 @@ function IdeaForm({
     Button
   } = window.Guadeloupe2026DesignSystem_3f20c8;
   const [name, setName] = React.useState(initial ? initial.name : "");
-  const [category, setCategory] = React.useState(initial ? initial.category : window.LIEUX_CATEGORIES[0].key);
+  const [category, setCategory] = React.useState(initial ? initial.category : IDEA_CATEGORIES[0].key);
   const [sector, setSector] = React.useState(initial ? initial.sector : window.LIEUX_SECTORS[0].key);
+  const [date, setDate] = React.useState(initial ? initial.date || "" : "");
   const [note, setNote] = React.useState(initial ? initial.note || "" : "");
   const [mapsUrl, setMapsUrl] = React.useState(initial ? initial.mapsUrl || "" : "");
   const [status, setStatus] = React.useState(initial ? initial.status || "explorer" : "explorer");
@@ -100,6 +132,7 @@ function IdeaForm({
       name: trimmed,
       category,
       sector,
+      date,
       note: note.trim(),
       mapsUrl: mapsUrl.trim(),
       status
@@ -131,7 +164,7 @@ function IdeaForm({
       flexWrap: "wrap",
       gap: 6
     }
-  }, window.LIEUX_CATEGORIES.map(c => {
+  }, IDEA_CATEGORIES.map(c => {
     const active = category === c.key;
     return /*#__PURE__*/React.createElement("button", {
       key: c.key,
@@ -177,6 +210,15 @@ function IdeaForm({
       }
     }, s.label);
   }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: label
+  }, "Date (optionnel) — pour un événement ponctuel"), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    min: "2026-08-08",
+    max: "2026-08-18",
+    value: date,
+    onChange: e => setDate(e.target.value),
+    style: inputStyle
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: label
   }, "Note (optionnel)"), /*#__PURE__*/React.createElement("textarea", {
     value: note,
@@ -261,7 +303,7 @@ function IdeaCard({
     Button,
     Badge
   } = window.Guadeloupe2026DesignSystem_3f20c8;
-  const cat = window.LIEUX_CATEGORIES.find(c => c.key === idea.category);
+  const cat = IDEA_CATEGORIES.find(c => c.key === idea.category);
   const sec = window.LIEUX_SECTORS.find(s => s.key === idea.sector);
   const href = idea.mapsUrl || window.mapsUrl(idea.name + " Guadeloupe");
   return /*#__PURE__*/React.createElement("div", {
@@ -358,7 +400,9 @@ function IdeaCard({
     tone: "lagoon"
   }, cat.label), sec && /*#__PURE__*/React.createElement(Badge, {
     tone: "tropical"
-  }, sec.label)), idea.note && /*#__PURE__*/React.createElement("div", {
+  }, sec.label), idea.date && /*#__PURE__*/React.createElement(Badge, {
+    tone: "coral"
+  }, formatIdeaDate(idea.date))), idea.note && /*#__PURE__*/React.createElement("div", {
     style: {
       font: "var(--text-caption)",
       color: "var(--text-primary)"

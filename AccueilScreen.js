@@ -89,6 +89,165 @@ function WeatherBadge() {
     }
   }, weather.temp, "° ", label));
 }
+function toISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+function EventRow({
+  idea,
+  tone,
+  go,
+  sectorLabel
+}) {
+  const isToday = tone === "today";
+  const accent = isToday ? "var(--accent-coral)" : "var(--accent-lagoon)";
+  return /*#__PURE__*/React.createElement("button", {
+    onClick: () => go("idees-partagees"),
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      width: "100%",
+      border: "none",
+      cursor: "pointer",
+      textAlign: "left",
+      background: isToday ? "var(--coral-tint-14)" : "var(--lagoon-tint-10)",
+      borderRadius: "var(--radius-chip)",
+      padding: "10px 12px",
+      marginTop: 8,
+      boxSizing: "border-box"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      width: 20,
+      height: 20,
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      margin: "auto",
+      width: 16,
+      height: 16,
+      background: accent,
+      WebkitMaskImage: "url(assets/icons/bell.svg)",
+      maskImage: "url(assets/icons/bell.svg)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat"
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: "var(--text-caption)",
+      fontSize: 10,
+      fontWeight: 700,
+      textTransform: "uppercase",
+      letterSpacing: "0.02em",
+      color: accent
+    }
+  }, isToday ? "Aujourd'hui" : "Demain"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: "var(--text-body)",
+      fontWeight: 700,
+      fontSize: 13,
+      color: "var(--text-primary)"
+    }
+  }, idea.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: "var(--text-caption)",
+      fontSize: 11,
+      color: "var(--text-secondary)"
+    }
+  }, sectorLabel(idea.sector), " · dans vos idées")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 12,
+      height: 12,
+      flexShrink: 0,
+      background: accent,
+      WebkitMaskImage: "url(assets/icons/chevron-right.svg)",
+      maskImage: "url(assets/icons/chevron-right.svg)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat"
+    }
+  }));
+}
+function TodayTomorrowEvents({
+  go
+}) {
+  const [fbReady, setFbReady] = React.useState(!!window.__fb);
+  const [ideas, setIdeas] = React.useState(null); // null = pas encore de données
+
+  React.useEffect(() => {
+    if (fbReady) return;
+    const onReady = () => setFbReady(true);
+    window.addEventListener("firebase-ready", onReady);
+    return () => window.removeEventListener("firebase-ready", onReady);
+  }, [fbReady]);
+  React.useEffect(() => {
+    if (!fbReady) return;
+    let unsubIdeas = null;
+    const unsubAuth = window.__fb.onAuthChange(user => {
+      if (unsubIdeas) {
+        unsubIdeas();
+        unsubIdeas = null;
+      }
+      if (user) {
+        unsubIdeas = window.__fb.subscribeIdeas(list => setIdeas(list), () => setIdeas(null));
+      } else {
+        setIdeas(null);
+      }
+    });
+    return () => {
+      unsubAuth && unsubAuth();
+      if (unsubIdeas) unsubIdeas();
+    };
+  }, [fbReady]);
+  if (!ideas) return null;
+  const todayISO = toISODate(new Date());
+  const tomorrowISO = toISODate(new Date(Date.now() + 86400000));
+  const todayIdeas = ideas.filter(i => i.date === todayISO);
+  const tomorrowIdeas = ideas.filter(i => i.date === tomorrowISO);
+  if (!todayIdeas.length && !tomorrowIdeas.length) return null;
+  const sectorLabel = key => {
+    const s = window.LIEUX_SECTORS.find(x => x.key === key);
+    return s ? s.label : "";
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 1,
+      background: "var(--border-default)",
+      margin: "18px 0 0"
+    }
+  }), todayIdeas.map(i => /*#__PURE__*/React.createElement(EventRow, {
+    key: i.id,
+    idea: i,
+    tone: "today",
+    go: go,
+    sectorLabel: sectorLabel
+  })), tomorrowIdeas.map(i => /*#__PURE__*/React.createElement(EventRow, {
+    key: i.id,
+    idea: i,
+    tone: "tomorrow",
+    go: go,
+    sectorLabel: sectorLabel
+  })));
+}
 function AccueilScreen({
   D,
   go
@@ -287,7 +446,9 @@ function AccueilScreen({
       fontWeight: 600,
       color: "var(--text-primary)"
     }
-  }, status.subtitle)))), /*#__PURE__*/React.createElement("div", {
+  }, status.subtitle)), /*#__PURE__*/React.createElement(TodayTomorrowEvents, {
+    go: go
+  }))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "0 16px"
     }
