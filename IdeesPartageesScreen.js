@@ -147,8 +147,13 @@ function useDriveMinutes(idea) {
               return;
             }
           }
+          // Beaucoup de petits lieux locaux (plages, événements) n'existent
+          // simplement pas comme entité nommée dans OpenStreetMap — aucune
+          // formulation de la recherche n'y changera rien. Le message guide
+          // directement vers la solution qui marche déjà : coller un lien
+          // Google Maps complet sur l'idée (bouton crayon).
           if (geo.lat == null) {
-            setDebugInfo(`${step} : aucun résultat pour « ${idea.name} »`);
+            setDebugInfo(`ajoute un lien Google Maps (icône crayon) pour le calculer`);
             return;
           }
           dest = geo;
