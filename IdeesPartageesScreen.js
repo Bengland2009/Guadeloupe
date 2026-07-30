@@ -31,6 +31,112 @@ const IDEA_CATEGORIES = [{
   icon: "calendar"
 }];
 
+// Coordonnées des deux hébergements — mêmes valeurs que stayMeta dans
+// app.jsx / CARTE_HEBERGEMENTS dans CarteScreen.jsx.
+const HEBERGEMENTS = {
+  sf: {
+    lat: 16.24671,
+    lng: -61.28691
+  },
+  de: {
+    lat: 16.275037,
+    lng: -61.804011
+  }
+};
+
+// Calcule automatiquement, en arrière-plan, le temps de route entre
+// l'hébergement du secteur de l'idée et l'idée elle-même — à partir de son
+// seul nom, sans que personne ait à placer une épingle sur une carte.
+// Géocodage (Nominatim) + calcul d'itinéraire (OSRM), tous deux gratuits et
+// sans clé. Le résultat est mis en cache sur l'idée elle-même (idea.driveMinutes)
+// pour ne recalculer qu'une seule fois. En cas d'échec (nom introuvable,
+// hors ligne), on n'affiche simplement rien plutôt qu'un chiffre inventé.
+function useDriveMinutes(idea) {
+  const [minutes, setMinutes] = React.useState(idea.driveMinutes != null ? idea.driveMinutes : null);
+  React.useEffect(() => {
+    if (idea.driveMinutes != null) {
+      setMinutes(idea.driveMinutes);
+      return;
+    }
+    const origin = HEBERGEMENTS[idea.sector];
+    if (!origin || !idea.name) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(idea.name + " Guadeloupe")}`);
+        const geoData = await geoRes.json();
+        if (cancelled || !geoData || !geoData[0]) return;
+        const destLat = parseFloat(geoData[0].lat);
+        const destLng = parseFloat(geoData[0].lon);
+        const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destLng},${destLat}?overview=false`);
+        const routeData = await routeRes.json();
+        const seconds = routeData && routeData.routes && routeData.routes[0] && routeData.routes[0].duration;
+        if (cancelled || seconds == null) return;
+        const mins = Math.max(1, Math.round(seconds / 60));
+        setMinutes(mins);
+        if (window.__fb) window.__fb.updateIdea(idea.id, {
+          driveMinutes: mins
+        });
+      } catch (_) {
+        // Échec silencieux (hors ligne, nom introuvable) — pas de chiffre affiché.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [idea.id, idea.name, idea.sector, idea.driveMinutes]);
+  return minutes;
+}
+function DriveTimeBadge({
+  minutes
+}) {
+  if (minutes == null) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      background: "var(--lagoon-tint-10)",
+      borderRadius: "var(--radius-chip)",
+      padding: "8px 12px",
+      alignSelf: "flex-start"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 18,
+      height: 18,
+      background: "var(--accent-lagoon)",
+      WebkitMaskImage: "url(assets/icons/car.svg)",
+      maskImage: "url(assets/icons/car.svg)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      flexShrink: 0
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 22,
+      fontWeight: 800,
+      color: "var(--accent-lagoon)",
+      lineHeight: 1
+    }
+  }, minutes), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: "var(--text-caption)",
+      fontSize: 12,
+      fontWeight: 600,
+      color: "var(--text-secondary)"
+    }
+  }, "min depuis l'hébergement")));
+}
+
 // Les 11 jours du voyage (8 au 18 août 2026), pour le sélecteur de jours
 // individuels — permet des événements non consécutifs (ex. 11, 12 et 14 août)
 // sans supposer que tous les jours entre les deux sont concernés.
@@ -353,6 +459,7 @@ function IdeaCard({
   const cat = IDEA_CATEGORIES.find(c => c.key === idea.category);
   const sec = window.LIEUX_SECTORS.find(s => s.key === idea.sector);
   const href = idea.mapsUrl || window.mapsUrl(idea.name + " Guadeloupe");
+  const driveMinutes = useDriveMinutes(idea);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       background: "#fff",
@@ -451,7 +558,9 @@ function IdeaCard({
     tone: "tropical"
   }, sec.label), idea.dates && idea.dates.length > 0 && /*#__PURE__*/React.createElement(Badge, {
     tone: "coral"
-  }, formatIdeaDates(idea))), idea.note && /*#__PURE__*/React.createElement("div", {
+  }, formatIdeaDates(idea))), /*#__PURE__*/React.createElement(DriveTimeBadge, {
+    minutes: driveMinutes
+  }), idea.note && /*#__PURE__*/React.createElement("div", {
     style: {
       font: "var(--text-caption)",
       color: "var(--text-primary)"
