@@ -74,7 +74,7 @@ export function getTripStatus(now = new Date()) {
   if (now < homeLeave) return { title: "Départ dans quelques heures", subtitle: "Quitter la maison à 3 h 25", badge: "Aujourd'hui" };
   if (now < flightOut) return { title: "Vol TS 894 à 7 h 05", subtitle: "En route vers l'aéroport", badge: "Aujourd'hui" };
   if (now < switchOut) return { title: "Vous êtes à Saint-François", subtitle: "Raisins Clairs · jusqu'au 13 août", badge: "En vacances" };
-  if (now < switchIn) return { title: "Quitter Deshaies… non, Raisins Clairs", subtitle: "Avant 10 h · arrivée à Deshaies après 15 h", badge: "13 août" };
+  if (now < switchIn) return { title: "Quitter avant 10 h", subtitle: "Arrivée à Deshaies après 15 h", badge: "13 août" };
   if (now < leaveDeshaies) return { title: "Vous êtes à Deshaies", subtitle: "Bungalow Corossol · jusqu'au 18 août", badge: "En vacances" };
   if (now < carReturn) return { title: "Quitter Deshaies à 8 h 45", subtitle: "Retourner la voiture à 10 h pile", badge: "18 août" };
   if (now < flightBack) return { title: "Vol TS 895 à 13 h 10", subtitle: "Retour de la voiture effectué", badge: "18 août" };
