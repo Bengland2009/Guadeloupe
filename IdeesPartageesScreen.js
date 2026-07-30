@@ -55,7 +55,39 @@ const HEBERGEMENTS = {
 // change de façon à invalider les valeurs déjà mises en cache sur d'anciennes
 // idées — ex. un résultat de géocodage ambigu (mauvaise « Grande Anse »)
 // calculé avec une version précédente doit être recalculé, pas réutilisé tel quel.
-const DRIVE_TIME_VERSION = 3;
+const DRIVE_TIME_VERSION = 4;
+
+// Extrait des coordonnées directement du lien Google Maps déjà saisi pour
+// l'idée (le même lien qui sert au bouton « Itinéraire ») — quand c'est
+// possible, c'est bien plus fiable qu'une recherche par nom, puisque ce sont
+// les coordonnées exactes que la personne a choisies elle-même. Ne
+// fonctionne que pour les liens complets (coordonnées visibles dans l'URL) ;
+// un lien court comme maps.app.goo.gl ne les révèle pas, donc la fonction
+// retombe sur le géocodage par nom dans ce cas.
+function extractLatLngFromText(text) {
+  if (!text) return null;
+  let m = text.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+  if (m) return {
+    lat: parseFloat(m[1]),
+    lng: parseFloat(m[2])
+  };
+  m = text.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (m) return {
+    lat: parseFloat(m[1]),
+    lng: parseFloat(m[2])
+  };
+  m = text.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (m) return {
+    lat: parseFloat(m[1]),
+    lng: parseFloat(m[2])
+  };
+  m = text.trim().match(/^(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)$/);
+  if (m) return {
+    lat: parseFloat(m[1]),
+    lng: parseFloat(m[2])
+  };
+  return null;
+}
 function useDriveMinutes(idea) {
   const cached = idea.driveMinutes != null && idea.driveMinutesV === DRIVE_TIME_VERSION;
   const [minutes, setMinutes] = React.useState(cached ? idea.driveMinutes : null);
@@ -96,29 +128,33 @@ function useDriveMinutes(idea) {
     (async () => {
       let step = "géocodage";
       try {
-        const sec = window.LIEUX_SECTORS && window.LIEUX_SECTORS.find(s => s.key === idea.sector);
-        let geo = sec ? await geocode(`${idea.name} ${sec.label} Guadeloupe`) : {
-          error: null
-        };
-        if (cancelled) return;
-        if (geo.error) {
-          setDebugInfo(`${step} : ${geo.error}`);
-          return;
-        }
-        if (geo.lat == null) {
-          geo = await geocode(`${idea.name} Guadeloupe`);
+        let dest = extractLatLngFromText(idea.mapsUrl);
+        if (!dest) {
+          const sec = window.LIEUX_SECTORS && window.LIEUX_SECTORS.find(s => s.key === idea.sector);
+          let geo = sec ? await geocode(`${idea.name} ${sec.label} Guadeloupe`) : {
+            error: null
+          };
           if (cancelled) return;
           if (geo.error) {
             setDebugInfo(`${step} : ${geo.error}`);
             return;
           }
+          if (geo.lat == null) {
+            geo = await geocode(`${idea.name} Guadeloupe`);
+            if (cancelled) return;
+            if (geo.error) {
+              setDebugInfo(`${step} : ${geo.error}`);
+              return;
+            }
+          }
+          if (geo.lat == null) {
+            setDebugInfo(`${step} : aucun résultat pour « ${idea.name} »`);
+            return;
+          }
+          dest = geo;
         }
-        if (geo.lat == null) {
-          setDebugInfo(`${step} : aucun résultat pour « ${idea.name} »`);
-          return;
-        }
-        const destLat = geo.lat;
-        const destLng = geo.lng;
+        const destLat = dest.lat;
+        const destLng = dest.lng;
         step = "itinéraire";
         const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destLng},${destLat}?overview=false`);
         if (!routeRes.ok) {
@@ -146,7 +182,7 @@ function useDriveMinutes(idea) {
     return () => {
       cancelled = true;
     };
-  }, [idea.id, idea.name, idea.sector, idea.driveMinutes, idea.driveMinutesV]);
+  }, [idea.id, idea.name, idea.sector, idea.mapsUrl, idea.driveMinutes, idea.driveMinutesV]);
   return {
     minutes,
     debugInfo
@@ -463,7 +499,14 @@ function IdeaForm({
     onChange: e => setMapsUrl(e.target.value),
     placeholder: "https://maps.app.goo.gl/...",
     style: inputStyle
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: "var(--text-caption)",
+      fontSize: 11,
+      color: "var(--text-secondary)",
+      marginTop: 4
+    }
+  }, "Astuce : un lien complet (pas raccourci), avec les coordonnées visibles dans l'adresse, donne un temps de route plus précis.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: label
   }, "Lien d'information (optionnel) — ex. page Facebook de l'événement"), /*#__PURE__*/React.createElement("input", {
     value: infoUrl,
