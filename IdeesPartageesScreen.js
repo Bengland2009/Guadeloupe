@@ -51,15 +51,21 @@ const HEBERGEMENTS = {
 // sans clé. Le résultat est mis en cache sur l'idée elle-même (idea.driveMinutes)
 // pour ne recalculer qu'une seule fois. En cas d'échec (nom introuvable,
 // hors ligne), on n'affiche simplement rien plutôt qu'un chiffre inventé.
+// Incrémenté chaque fois que le calcul (requête de géocodage, filtrage, etc.)
+// change de façon à invalider les valeurs déjà mises en cache sur d'anciennes
+// idées — ex. un résultat de géocodage ambigu (mauvaise « Grande Anse »)
+// calculé avec une version précédente doit être recalculé, pas réutilisé tel quel.
+const DRIVE_TIME_VERSION = 2;
 function useDriveMinutes(idea) {
-  const [minutes, setMinutes] = React.useState(idea.driveMinutes != null ? idea.driveMinutes : null);
+  const cached = idea.driveMinutes != null && idea.driveMinutesV === DRIVE_TIME_VERSION;
+  const [minutes, setMinutes] = React.useState(cached ? idea.driveMinutes : null);
   // Diagnostic temporaire : voir docs/notes de session — aucune donnée
   // n'apparaissait chez l'utilisateur alors que la logique était validée avec
   // des réponses simulées. On expose l'erreur réelle (CORS, statut HTTP,
   // réponse inattendue) pour savoir enfin ce qui bloque en conditions réelles.
   const [debugInfo, setDebugInfo] = React.useState(null);
   React.useEffect(() => {
-    if (idea.driveMinutes != null) {
+    if (idea.driveMinutes != null && idea.driveMinutesV === DRIVE_TIME_VERSION) {
       setMinutes(idea.driveMinutes);
       return;
     }
@@ -69,7 +75,14 @@ function useDriveMinutes(idea) {
     (async () => {
       let step = "géocodage";
       try {
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(idea.name + " Guadeloupe")}`);
+        // countrycodes=gp évite les faux amis hors Guadeloupe (ex. un lieu du
+        // même nom en France métropolitaine, vers lequel OSRM ne peut tracer
+        // aucune route). Le secteur (Deshaies / Saint-François) est ajouté au
+        // texte de recherche pour départager les lieux homonymes qui existent
+        // à plusieurs endroits de l'île (ex. deux plages « Grande Anse »).
+        const sec = window.LIEUX_SECTORS && window.LIEUX_SECTORS.find(s => s.key === idea.sector);
+        const searchText = sec ? `${idea.name}, ${sec.label}, Guadeloupe` : `${idea.name}, Guadeloupe`;
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gp&q=${encodeURIComponent(searchText)}`);
         if (!geoRes.ok) {
           if (!cancelled) setDebugInfo(`${step} : HTTP ${geoRes.status}`);
           return;
@@ -99,7 +112,8 @@ function useDriveMinutes(idea) {
         setMinutes(mins);
         setDebugInfo(null);
         if (window.__fb) window.__fb.updateIdea(idea.id, {
-          driveMinutes: mins
+          driveMinutes: mins,
+          driveMinutesV: DRIVE_TIME_VERSION
         });
       } catch (err) {
         if (!cancelled) setDebugInfo(`${step} : ${err && err.message ? err.message : String(err)}`);
@@ -108,7 +122,7 @@ function useDriveMinutes(idea) {
     return () => {
       cancelled = true;
     };
-  }, [idea.id, idea.name, idea.sector, idea.driveMinutes]);
+  }, [idea.id, idea.name, idea.sector, idea.driveMinutes, idea.driveMinutesV]);
   return {
     minutes,
     debugInfo
