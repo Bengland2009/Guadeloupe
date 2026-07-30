@@ -200,9 +200,14 @@ function useDriveMinutes(idea) {
         const mins = Math.max(1, Math.round(seconds / 60));
         setMinutes(mins);
         setDebugInfo(null);
+        // On garde aussi les coordonnées résolues (pas seulement le temps de
+        // route) : ça permet à l'écran Carte d'afficher directement l'idée
+        // sans devoir refaire un géocodage de son côté.
         if (window.__fb) window.__fb.updateIdea(idea.id, {
           driveMinutes: mins,
-          driveMinutesV: DRIVE_TIME_VERSION
+          driveMinutesV: DRIVE_TIME_VERSION,
+          lat: destLat,
+          lng: destLng
         });
       } catch (err) {
         if (!cancelled) setDebugInfo(`${step} : ${err && err.message ? err.message : String(err)}`);
