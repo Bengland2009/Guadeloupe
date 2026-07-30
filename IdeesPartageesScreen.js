@@ -412,7 +412,9 @@ function IdeaCard({
       maskRepeat: "no-repeat"
     }
   })), /*#__PURE__*/React.createElement("button", {
-    onClick: () => onDelete(idea.id),
+    onClick: () => {
+      if (window.confirm(`Supprimer « ${idea.name} » ? Cette action est définitive.`)) onDelete(idea.id);
+    },
     "aria-label": "Supprimer",
     style: {
       width: 48,
