@@ -97,6 +97,11 @@ function App() {
     screenProps = {
       onBack: () => setTab("adresses")
     };
+  } else if (tab === "carte") {
+    Screen = window.CarteScreen;
+    screenProps = {
+      onBack: () => setTab("adresses")
+    };
   } else if (tab.startsWith("stay-")) {
     const stayId = tab.replace("stay-", "");
     const s = window.__TRIP__.stays.find(x => x.id === stayId);

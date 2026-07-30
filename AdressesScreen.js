@@ -400,6 +400,60 @@ function IdeesLinkCard({
     }
   }));
 }
+function CarteLinkCard({
+  go
+}) {
+  return /*#__PURE__*/React.createElement("button", {
+    onClick: () => go("carte"),
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      width: "100%",
+      minHeight: 50,
+      padding: "0 14px",
+      borderRadius: "var(--radius-chip)",
+      border: "none",
+      background: "var(--lagoon-tint-10)",
+      cursor: "pointer",
+      textAlign: "left"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 20,
+      height: 20,
+      background: "var(--accent-lagoon)",
+      WebkitMaskImage: "url(assets/icons/map.svg)",
+      maskImage: "url(assets/icons/map.svg)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      flexShrink: 0
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: "var(--text-body)",
+      fontWeight: 700,
+      fontSize: 15,
+      color: "var(--text-primary)",
+      flex: 1
+    }
+  }, "Carte"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 13,
+      height: 13,
+      background: "var(--accent-lagoon)",
+      WebkitMaskImage: "url(assets/icons/chevron-right.svg)",
+      maskImage: "url(assets/icons/chevron-right.svg)",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      flexShrink: 0
+    }
+  }));
+}
 function AdressesScreen({
   D,
   go
@@ -421,6 +475,8 @@ function AdressesScreen({
     title: "Lieux",
     subtitle: "Suggestions utiles sur place"
   }), /*#__PURE__*/React.createElement(IdeesLinkCard, {
+    go: go
+  }), /*#__PURE__*/React.createElement(CarteLinkCard, {
     go: go
   }), /*#__PURE__*/React.createElement(SectorPicker, {
     value: sector,

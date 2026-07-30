@@ -52,7 +52,7 @@ a:hover{color:var(--lagoon-press)}
 <script type="module">
 import { trip, getTripStatus, mapsUrl } from "./data.js";
 import { sectors, categories, currentSector, places, epiceriesNote, allergyBanner, restaurants } from "./lieuxData.js";
-window.APP_VERSION = "1.13";
+window.APP_VERSION = "1.14";
 window.__TRIP__ = trip;
 window.getTripStatus = getTripStatus;
 window.mapsUrl = mapsUrl;
@@ -72,6 +72,7 @@ window.LIEUX_RESTAURANTS = restaurants;
 <script src="./AllergieScreen.js"></script>
 <script src="./HebergementDetailScreen.js"></script>
 <script src="./IdeesPartageesScreen.js"></script>
+<script src="./CarteScreen.js"></script>
 <script src="./app.js"></script>
 <script>
 if ("serviceWorker" in navigator) {

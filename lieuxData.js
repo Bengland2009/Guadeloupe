@@ -19,20 +19,20 @@ export function currentSector(now = new Date()) {
 
 export const places = [
   // À voir — Deshaies
-  { id: "cascade-ecrevisses", name: "Cascade aux Écrevisses", category: "avoir", sector: "de", info: ["1 à 2 h", "Très facile"], note: "Sentier ~200 m, poussette possible, gratuit. Arriver tôt.", query: "Cascade aux Écrevisses Guadeloupe" },
-  { id: "jardin-botanique", name: "Jardin Botanique de Deshaies", category: "avoir", sector: "de", info: ["1 h 30 à 2 h", "Dernière entrée 16 h 30"], note: "Quelques passages en pente.", query: "Jardin Botanique de Deshaies" },
-  { id: "carbet", name: "2e Chutes du Carbet", category: "avoir", sector: "de", info: ["~1 h 30 A/R", "1,4 km · facile"], note: "Observation depuis le belvédère. Accès au pied interdit (chutes de pierres).", query: "2e Chute du Carbet Guadeloupe" },
-  { id: "reserve-cousteau", name: "Réserve Cousteau", category: "avoir", sector: "de", info: ["Bateau fond de verre", "1 h 15 à 1 h 30"], note: "Prévoir 2 à 3 h au total. Réserver une heure adaptée aux enfants.", query: "Réserve Cousteau Guadeloupe" },
+  { id: "cascade-ecrevisses", name: "Cascade aux Écrevisses", category: "avoir", sector: "de", info: ["1 à 2 h", "Très facile"], note: "Sentier ~200 m, poussette possible, gratuit. Arriver tôt.", query: "Cascade aux Écrevisses Guadeloupe", lat: 16.1636, lng: -61.7014 },
+  { id: "jardin-botanique", name: "Jardin Botanique de Deshaies", category: "avoir", sector: "de", info: ["1 h 30 à 2 h", "Dernière entrée 16 h 30"], note: "Quelques passages en pente.", query: "Jardin Botanique de Deshaies", lat: 16.3057, lng: -61.7955 },
+  { id: "carbet", name: "2e Chutes du Carbet", category: "avoir", sector: "de", info: ["~1 h 30 A/R", "1,4 km · facile"], note: "Observation depuis le belvédère. Accès au pied interdit (chutes de pierres).", query: "2e Chute du Carbet Guadeloupe", lat: 16.0503, lng: -61.6242 },
+  { id: "reserve-cousteau", name: "Réserve Cousteau", category: "avoir", sector: "de", info: ["Bateau fond de verre", "1 h 15 à 1 h 30"], note: "Prévoir 2 à 3 h au total. Réserver une heure adaptée aux enfants.", query: "Réserve Cousteau Guadeloupe", lat: 16.1706, lng: -61.7963 },
 
   // À voir — Saint-François
-  { id: "pointe-chateaux", name: "Pointe des Châteaux", category: "avoir", sector: "sf", info: ["1 h à 1 h 30 (croix)", "Très exposée soleil/vent"], note: "Tôt le matin. Ne pas confondre avec le sentier complet de 10 km.", query: "Pointe des Châteaux Guadeloupe" },
-  { id: "marie-galante", name: "Marie-Galante", category: "avoir", sector: "sf", info: ["Journée complète", "Effort faible"], note: "Logistique importante.", badge: "Date fixe · lun. 10 ou mer. 12 août", query: "Marie-Galante ferry Saint-François" },
-  { id: "petite-terre", name: "Petite-Terre", category: "avoir", sector: "sf", info: ["Journée complète", "~45 min bateau/direction"], note: "Traversée parfois mouvementée.", badge: "À réserver", query: "Petite-Terre Guadeloupe excursion" },
+  { id: "pointe-chateaux", name: "Pointe des Châteaux", category: "avoir", sector: "sf", info: ["1 h à 1 h 30 (croix)", "Très exposée soleil/vent"], note: "Tôt le matin. Ne pas confondre avec le sentier complet de 10 km.", query: "Pointe des Châteaux Guadeloupe", lat: 16.2489, lng: -61.1861 },
+  { id: "marie-galante", name: "Marie-Galante", category: "avoir", sector: "sf", info: ["Journée complète", "Effort faible"], note: "Logistique importante.", badge: "Date fixe · lun. 10 ou mer. 12 août", query: "Marie-Galante ferry Saint-François", lat: 15.937, lng: -61.2965 },
+  { id: "petite-terre", name: "Petite-Terre", category: "avoir", sector: "sf", info: ["Journée complète", "~45 min bateau/direction"], note: "Traversée parfois mouvementée.", badge: "À réserver", query: "Petite-Terre Guadeloupe excursion", lat: 16.1667, lng: -61.1167 },
 
   // Plages
-  { id: "grande-anse", name: "Grande Anse", category: "plages", sector: "de", info: ["Demi-journée", "Non surveillée"], note: "Vagues et courant possibles — rester près du rivage avec les enfants.", query: "Grande Anse Deshaies" },
-  { id: "bois-jolan", name: "Bois Jolan", category: "plages", sector: "sf", info: ["Demi-journée", "Idéal enfants"], note: "Lagon peu profond, généralement calme.", query: "Plage de Bois Jolan Guadeloupe" },
-  { id: "anse-gourde", name: "Anse à la Gourde", category: "plages", sector: "sf", info: ["Demi-journée", "À traiter séparément de Bois Jolan"], note: "Vérifier les conditions de baignade le jour même.", query: "Anse à la Gourde Guadeloupe" },
+  { id: "grande-anse", name: "Grande Anse", category: "plages", sector: "de", info: ["Demi-journée", "Non surveillée"], note: "Vagues et courant possibles — rester près du rivage avec les enfants.", query: "Grande Anse Deshaies", lat: 16.318, lng: -61.8025 },
+  { id: "bois-jolan", name: "Bois Jolan", category: "plages", sector: "sf", info: ["Demi-journée", "Idéal enfants"], note: "Lagon peu profond, généralement calme.", query: "Plage de Bois Jolan Guadeloupe", lat: 16.235, lng: -61.265 },
+  { id: "anse-gourde", name: "Anse à la Gourde", category: "plages", sector: "sf", info: ["Demi-journée", "À traiter séparément de Bois Jolan"], note: "Vérifier les conditions de baignade le jour même.", query: "Anse à la Gourde Guadeloupe", lat: 16.281, lng: -61.202 },
 
   // Épiceries — Saint-François
   { id: "super-u-sf", name: "Super U Saint-François", category: "epiceries", sector: "sf", type: "Supermarché", usage: "Gros plein", time: "5 à 10 min", note: "Idéal avant le transfert vers Deshaies.", query: "Super U Saint-François Guadeloupe" },

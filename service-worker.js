@@ -1,4 +1,4 @@
-const CACHE_VERSION = "guadeloupe-2026-v27";
+const CACHE_VERSION = "guadeloupe-2026-v28";
 const DS_BASE = "./_ds/guadeloupe-2026-design-system-3f20c867-6b87-4e81-a24c-d1fdc59bdb9e";
 
 // Everything the app needs to boot and render, fully self-hosted. If any of
@@ -19,6 +19,7 @@ const PRECACHE_URLS = [
   "./AllergieScreen.js",
   "./HebergementDetailScreen.js",
   "./IdeesPartageesScreen.js",
+  "./CarteScreen.js",
   "./firebase-bridge.js",
   "./vendor/react.production.min.js",
   "./vendor/react-dom.production.min.js",
@@ -148,6 +149,7 @@ const APP_CODE_FILES = [
   "AllergieScreen.js",
   "HebergementDetailScreen.js",
   "IdeesPartageesScreen.js",
+  "CarteScreen.js",
   "firebase-bridge.js",
   "data.js",
   "lieuxData.js",
