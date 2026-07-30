@@ -53,6 +53,11 @@ const HEBERGEMENTS = {
 // hors ligne), on n'affiche simplement rien plutôt qu'un chiffre inventé.
 function useDriveMinutes(idea) {
   const [minutes, setMinutes] = React.useState(idea.driveMinutes != null ? idea.driveMinutes : null);
+  // Diagnostic temporaire : voir docs/notes de session — aucune donnée
+  // n'apparaissait chez l'utilisateur alors que la logique était validée avec
+  // des réponses simulées. On expose l'erreur réelle (CORS, statut HTTP,
+  // réponse inattendue) pour savoir enfin ce qui bloque en conditions réelles.
+  const [debugInfo, setDebugInfo] = React.useState(null);
   React.useEffect(() => {
     if (idea.driveMinutes != null) {
       setMinutes(idea.driveMinutes);
@@ -62,35 +67,71 @@ function useDriveMinutes(idea) {
     if (!origin || !idea.name) return;
     let cancelled = false;
     (async () => {
+      let step = "géocodage";
       try {
         const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(idea.name + " Guadeloupe")}`);
+        if (!geoRes.ok) {
+          if (!cancelled) setDebugInfo(`${step} : HTTP ${geoRes.status}`);
+          return;
+        }
         const geoData = await geoRes.json();
-        if (cancelled || !geoData || !geoData[0]) return;
+        if (cancelled) return;
+        if (!geoData || !geoData[0]) {
+          setDebugInfo(`${step} : aucun résultat pour « ${idea.name} »`);
+          return;
+        }
         const destLat = parseFloat(geoData[0].lat);
         const destLng = parseFloat(geoData[0].lon);
+        step = "itinéraire";
         const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destLng},${destLat}?overview=false`);
+        if (!routeRes.ok) {
+          if (!cancelled) setDebugInfo(`${step} : HTTP ${routeRes.status}`);
+          return;
+        }
         const routeData = await routeRes.json();
+        if (cancelled) return;
         const seconds = routeData && routeData.routes && routeData.routes[0] && routeData.routes[0].duration;
-        if (cancelled || seconds == null) return;
+        if (seconds == null) {
+          setDebugInfo(`${step} : réponse inattendue — ${JSON.stringify(routeData).slice(0, 120)}`);
+          return;
+        }
         const mins = Math.max(1, Math.round(seconds / 60));
         setMinutes(mins);
+        setDebugInfo(null);
         if (window.__fb) window.__fb.updateIdea(idea.id, {
           driveMinutes: mins
         });
-      } catch (_) {
-        // Échec silencieux (hors ligne, nom introuvable) — pas de chiffre affiché.
+      } catch (err) {
+        if (!cancelled) setDebugInfo(`${step} : ${err && err.message ? err.message : String(err)}`);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [idea.id, idea.name, idea.sector, idea.driveMinutes]);
-  return minutes;
+  return {
+    minutes,
+    debugInfo
+  };
 }
 function DriveTimeBadge({
-  minutes
+  minutes,
+  debugInfo
 }) {
-  if (minutes == null) return null;
+  if (minutes == null) {
+    if (!debugInfo) return null;
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        font: "var(--text-caption)",
+        fontSize: 11,
+        color: "var(--accent-emergency)",
+        background: "var(--surface-emergency)",
+        borderRadius: "var(--radius-input)",
+        padding: "6px 10px",
+        alignSelf: "flex-start"
+      }
+    }, "Temps de route indisponible — ", debugInfo);
+  }
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -459,7 +500,10 @@ function IdeaCard({
   const cat = IDEA_CATEGORIES.find(c => c.key === idea.category);
   const sec = window.LIEUX_SECTORS.find(s => s.key === idea.sector);
   const href = idea.mapsUrl || window.mapsUrl(idea.name + " Guadeloupe");
-  const driveMinutes = useDriveMinutes(idea);
+  const {
+    minutes: driveMinutes,
+    debugInfo: driveDebugInfo
+  } = useDriveMinutes(idea);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       background: "#fff",
@@ -559,7 +603,8 @@ function IdeaCard({
   }, sec.label), idea.dates && idea.dates.length > 0 && /*#__PURE__*/React.createElement(Badge, {
     tone: "coral"
   }, formatIdeaDates(idea))), /*#__PURE__*/React.createElement(DriveTimeBadge, {
-    minutes: driveMinutes
+    minutes: driveMinutes,
+    debugInfo: driveDebugInfo
   }), idea.note && /*#__PURE__*/React.createElement("div", {
     style: {
       font: "var(--text-caption)",
