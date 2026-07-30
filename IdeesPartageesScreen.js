@@ -55,7 +55,7 @@ const HEBERGEMENTS = {
 // change de façon à invalider les valeurs déjà mises en cache sur d'anciennes
 // idées — ex. un résultat de géocodage ambigu (mauvaise « Grande Anse »)
 // calculé avec une version précédente doit être recalculé, pas réutilisé tel quel.
-const DRIVE_TIME_VERSION = 2;
+const DRIVE_TIME_VERSION = 3;
 function useDriveMinutes(idea) {
   const cached = idea.driveMinutes != null && idea.driveMinutesV === DRIVE_TIME_VERSION;
   const [minutes, setMinutes] = React.useState(cached ? idea.driveMinutes : null);
@@ -72,29 +72,53 @@ function useDriveMinutes(idea) {
     const origin = HEBERGEMENTS[idea.sector];
     if (!origin || !idea.name) return;
     let cancelled = false;
+
+    // Une recherche séparée par virgules pousse Nominatim à faire du
+    // découpage d'adresse structuré (rue, ville, pays) plutôt qu'une
+    // recherche libre — beaucoup moins tolérant, et ça peut faire échouer des
+    // lieux pourtant bien connus (ex. « Plage de la Perle »). On reste donc
+    // en texte libre (espaces), et si la version avec secteur ne trouve rien,
+    // on retente sans lui plutôt que d'abandonner.
+    async function geocode(query) {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gp&q=${encodeURIComponent(query)}`);
+      if (!res.ok) return {
+        error: `HTTP ${res.status}`
+      };
+      const data = await res.json();
+      if (!data || !data[0]) return {
+        error: null
+      };
+      return {
+        lat: parseFloat(data[0].lat),
+        lng: parseFloat(data[0].lon)
+      };
+    }
     (async () => {
       let step = "géocodage";
       try {
-        // countrycodes=gp évite les faux amis hors Guadeloupe (ex. un lieu du
-        // même nom en France métropolitaine, vers lequel OSRM ne peut tracer
-        // aucune route). Le secteur (Deshaies / Saint-François) est ajouté au
-        // texte de recherche pour départager les lieux homonymes qui existent
-        // à plusieurs endroits de l'île (ex. deux plages « Grande Anse »).
         const sec = window.LIEUX_SECTORS && window.LIEUX_SECTORS.find(s => s.key === idea.sector);
-        const searchText = sec ? `${idea.name}, ${sec.label}, Guadeloupe` : `${idea.name}, Guadeloupe`;
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gp&q=${encodeURIComponent(searchText)}`);
-        if (!geoRes.ok) {
-          if (!cancelled) setDebugInfo(`${step} : HTTP ${geoRes.status}`);
+        let geo = sec ? await geocode(`${idea.name} ${sec.label} Guadeloupe`) : {
+          error: null
+        };
+        if (cancelled) return;
+        if (geo.error) {
+          setDebugInfo(`${step} : ${geo.error}`);
           return;
         }
-        const geoData = await geoRes.json();
-        if (cancelled) return;
-        if (!geoData || !geoData[0]) {
+        if (geo.lat == null) {
+          geo = await geocode(`${idea.name} Guadeloupe`);
+          if (cancelled) return;
+          if (geo.error) {
+            setDebugInfo(`${step} : ${geo.error}`);
+            return;
+          }
+        }
+        if (geo.lat == null) {
           setDebugInfo(`${step} : aucun résultat pour « ${idea.name} »`);
           return;
         }
-        const destLat = parseFloat(geoData[0].lat);
-        const destLng = parseFloat(geoData[0].lon);
+        const destLat = geo.lat;
+        const destLng = geo.lng;
         step = "itinéraire";
         const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destLng},${destLat}?overview=false`);
         if (!routeRes.ok) {
