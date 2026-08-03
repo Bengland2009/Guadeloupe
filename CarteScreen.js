@@ -72,6 +72,12 @@ function extractLatLngFromText(text) {
     lat: parseFloat(m[1]),
     lng: parseFloat(m[2])
   };
+  // Coordonnées copiées avec la virgule décimale (téléphone en français).
+  m = text.trim().match(/^(-?\d{1,3}),(\d+)\s*,\s*(-?\d{1,3}),(\d+)$/);
+  if (m) return {
+    lat: parseFloat(`${m[1]}.${m[2]}`),
+    lng: parseFloat(`${m[3]}.${m[4]}`)
+  };
   return null;
 }
 

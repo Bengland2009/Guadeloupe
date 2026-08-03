@@ -55,7 +55,7 @@ const HEBERGEMENTS = {
 // change de façon à invalider les valeurs déjà mises en cache sur d'anciennes
 // idées — ex. un résultat de géocodage ambigu (mauvaise « Grande Anse »)
 // calculé avec une version précédente doit être recalculé, pas réutilisé tel quel.
-const DRIVE_TIME_VERSION = 4;
+const DRIVE_TIME_VERSION = 5;
 
 // Extrait des coordonnées directement du lien Google Maps déjà saisi pour
 // l'idée (le même lien qui sert au bouton « Itinéraire ») — quand c'est
@@ -85,6 +85,16 @@ function extractLatLngFromText(text) {
   if (m) return {
     lat: parseFloat(m[1]),
     lng: parseFloat(m[2])
+  };
+  // Coordonnées copiées avec la virgule décimale d'un téléphone en français
+  // (ex. « 16,2519356, -61,3114612 ») — la virgule sert à la fois de séparateur
+  // décimal ET de séparateur entre les deux nombres, donc un simple split ne
+  // suffit pas : on capture explicitement partie entière/décimale de chaque
+  // côté pour lever l'ambiguïté.
+  m = text.trim().match(/^(-?\d{1,3}),(\d+)\s*,\s*(-?\d{1,3}),(\d+)$/);
+  if (m) return {
+    lat: parseFloat(`${m[1]}.${m[2]}`),
+    lng: parseFloat(`${m[3]}.${m[4]}`)
   };
   return null;
 }
